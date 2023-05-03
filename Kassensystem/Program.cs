@@ -1,6 +1,12 @@
+using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Kassensystem.Data;
+using Kassensystem.Hubs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +15,21 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
+// Add signal r response compression 
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
+
+
+// Add db server
+
+
 var app = builder.Build();
+
+// Add response compression middleware
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -25,7 +45,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
 app.MapBlazorHub();
+
+app.MapHub<DataHub>("/datahub");
+
 app.MapFallbackToPage("/_Host");
 
 app.Run();

@@ -1,3 +1,5 @@
+using System;
+
 namespace Kassensystem.Data;
 
 public class WeatherForecast
