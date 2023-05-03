@@ -21,4 +21,19 @@
       <PackageReference Include="Radzen.Blazor" Version="4.10.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\dark-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\dark.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\default-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\default.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\humanistic-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\humanistic.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\material-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\material.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\software-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\software.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard.css" />
+    </ItemGroup>
+
 </Project>
