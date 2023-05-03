@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kassensystem.Data;
 
-class Product
+public class Product
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int ID { get; set;}
