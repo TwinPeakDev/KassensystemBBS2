@@ -13,4 +13,8 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Radzen.Blazor" Version="4.10.2" />
+    </ItemGroup>
+
 </Project>
