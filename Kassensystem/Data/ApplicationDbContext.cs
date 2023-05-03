@@ -18,10 +18,14 @@ public class ApplicationDbContext : DbContext
             .HasMany(p => p.SellEntries)
             .WithOne(s => s.Item);
 
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.SellEntries)
+            .WithOne(e => e.SoldBy);
 
     }
 
 
-    DbSet<Product> Products;
-    DbSet<Sold> SellEntries;
+    public DbSet<Product> Products;
+    public DbSet<Sold> SellEntries;
+    public DbSet<User> Users;
 }
