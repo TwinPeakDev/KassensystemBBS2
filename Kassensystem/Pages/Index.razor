@@ -1,7 +1,14 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.EntityFrameworkCore;
+@using Kassensystem.Data;
+@using Kassensystem.Hubs;
 @inject NavigationManager Navigation
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory;
+
 @implements IAsyncDisposable
+
+
 
 <PageTitle>Index</PageTitle>
 
@@ -47,6 +54,11 @@
             InvokeAsync(StateHasChanged);
         });
 
+        hubConnection.On("PaymentSaved", () => 
+        {
+            ///TODO: implement update after payment has been saved (maybe list past sales in a grid / update that grid)
+        });
+
         await hubConnection.StartAsync();
     }
 
@@ -55,6 +67,14 @@
         if (hubConnection is not null)
         {
             await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+        }
+    }
+
+    private async Task SavePayment(Sold sold)
+    {
+        if(hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SavePayment", sold);
         }
     }
 
