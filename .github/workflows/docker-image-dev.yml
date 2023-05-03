@@ -40,3 +40,11 @@ jobs:
         run: |
           docker push saile2204/kassensystem-bbs2-wob:latest-${{ steps.extract_branch.outputs.branch }}
           docker push saile2204/kassensystem-bbs2-wob:${{ steps.extract_branch.outputs.branch }}-$GITHUB_SHA
+      - name: Update Portainer Stack
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://portainer.nuv.systems/api/stacks/42?endpointId=2'
+          method: 'PUT'
+          customHeaders: '{"Content-Type": "application/json", "X-API-Key": "${{ secrets.PORTAINER_KEY }}"}'
+          data: '{"env": [{"name": "ConnectionString","value": "value"}],"prune": true,"pullImage": true,"stackFileContent": "version: "2.1"\nnetworks:\n    portainer_internal:\n      external: true\nservices:\n  develop:\n    image: saile2204/kassensystem-bbs2-wob:latest-develop\n    environment:\n      - PUID=1000\n      - PGID=1000\n      - TZ=Etc/UTC\n    networks:\n      - portainer_internal\n    restart: unless-stopped"
+}'
