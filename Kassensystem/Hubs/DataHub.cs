@@ -8,4 +8,9 @@ public class DataHub : Hub
     {
         await Clients.All.SendAsync("ReceiveMessage", user, message);
     }
+
+
+    //public async Task SavePayment()
+
+    
 }

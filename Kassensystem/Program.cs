@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,8 @@ builder.Services.AddResponseCompression(opts =>
 });
 
 
-// Add db server
+// Add dbcontext factory
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(""));
 
 
 var app = builder.Build();
