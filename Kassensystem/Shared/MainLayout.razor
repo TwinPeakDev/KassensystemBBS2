@@ -3,12 +3,10 @@
 <PageTitle>Kassensystem</PageTitle>
 <style>
     .rz-sidebar { border-right: 0 }
-    *{background-color: var(--rz-base-300);}
-
 </style>
 
 
-<RadzenLayout Style="height: 100%; grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+<RadzenLayout Style="background-color: var(--rz-base-200); grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
     <RadzenHeader Style="background-color: var(--topbar-bg-color)">
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
             <RadzenSidebarToggle Click="@_navMenu.PanelClick" />
@@ -16,8 +14,8 @@
         </RadzenStack>
     </RadzenHeader>
     <NavMenu @ref="_navMenu" />
-    <RadzenBody>
-        <div class="rz-p-4">
+    <RadzenBody Style="background-color: var(--rz-base-200);" >
+        <div style="height: 100%;" class="rz-p-4">
             @Body
         </div>
     </RadzenBody>
