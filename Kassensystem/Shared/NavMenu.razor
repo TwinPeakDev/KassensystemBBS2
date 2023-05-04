@@ -1,4 +1,8 @@
-﻿<RadzenSidebar style="background-color: var(--sidebar-bg-color)" @bind-Expanded="@sidebar2Expanded">
+﻿<style>
+    *{background-color: var(--rz-base-300);}
+</style>
+
+<RadzenSidebar @bind-Expanded="@sidebar2Expanded">
     <RadzenPanelMenu>
         <RadzenPanelMenuItem Click="PanelClick" Text="Home" Path="/" Icon="home" />
         <RadzenPanelMenuItem Click="PanelClick" Text="Produkte" Path="produkte" Icon="list" />
