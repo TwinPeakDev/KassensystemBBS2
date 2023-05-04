@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Kassensystem.Data;
 using Kassensystem.Hubs;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
+
+builder.Services.AddControllers();
+builder.Services                    
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(); 
 
 // Add signal r response compression 
 builder.Services.AddResponseCompression(opts =>
@@ -23,9 +28,9 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-
+var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
 // Add dbcontext factory
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(""));
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
 
 var app = builder.Build();
@@ -42,16 +47,14 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRouting();
 
-
+app.MapControllers();
 app.MapBlazorHub();
-
 app.MapHub<DataHub>("/datahub");
-
 app.MapFallbackToPage("/_Host");
 
 app.Run();
