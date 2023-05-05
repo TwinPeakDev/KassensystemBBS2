@@ -12,7 +12,7 @@
 
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
     <RadzenTextBox @bind-Value="@curProduct.Name" Placeholder="Name"></RadzenTextBox>
-    <RadzenNumeric @bind-Value="curProduct.PriceEur" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    <RadzenNumeric @bind-Value="curProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
     @if (curProduct.Image != null)
     {
         <RadzenImage Path="@curProduct.Image"></RadzenImage>
