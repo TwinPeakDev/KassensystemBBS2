@@ -36,12 +36,13 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
+
+#if DEBUG
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
+#else
 var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-// Add dbcontext factory
-//builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("kek"));
-
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+#endif
 
 var app = builder.Build();
 
