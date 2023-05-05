@@ -1,18 +1,17 @@
 @using Kassensystem.Data
 
-@if (_products != null)
+@if (Products != null || !Products.Any())
 {
-    <RadzenCard>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap" >
-            @foreach (var product in _products)
-            {
-                <RadzenCard>
-                    @product.Name
-                    <RadzenImage Path="@product.Image" ></RadzenImage>
-                </RadzenCard>
-            }
-        </RadzenStack>
-    </RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap" >
+        @foreach (var product in Products)
+        {
+            <RadzenCard>
+                @product.Name
+                <RadzenImage Path="@product.Image" ></RadzenImage>
+            </RadzenCard>
+        }
+    </RadzenStack>
+
     
     
 }
@@ -21,13 +20,8 @@
 
 @code {
     [Parameter]
-    public IEnumerable<Product>? _products { get; set; }
+    public IEnumerable<Product>? Products { get; set; }
 
-    [Parameter]
-    public int Width { get; set; } = 4;
-
-    [Parameter]
-    public int Height { get; set; } = 4;
 
 
 }

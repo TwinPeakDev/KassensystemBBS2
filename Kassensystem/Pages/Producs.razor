@@ -13,11 +13,11 @@
 
 <h3>Produkte</h3>
 
-<RadzenButton Text="Neues Produkt hinzufügen" Click="AddNewProduct" ></RadzenButton>
+<RadzenButton Style="margin-bottom: 1rem" Text="Neues Produkt hinzufügen" Click="AddNewProduct" ></RadzenButton>
 
 @if (_products != null)
 {
-    <ProductCardGrid _products="_products" ></ProductCardGrid>
+    <ProductCardGrid Products="_products" ></ProductCardGrid>
 }
 
 
@@ -39,16 +39,10 @@
         
         hubConnection.On("UpdateProducts", async () =>
         {
-            var context = await _contextFactory.CreateDbContextAsync();
-            _products = context.Products;
-            await context.DisposeAsync();
+            await UpdateProductList();
         });
 
-        var context = await _contextFactory.CreateDbContextAsync();
-
-        _products = context.Products;
-
-        await context.DisposeAsync();
+        await UpdateProductList();
         
         await hubConnection.StartAsync();
     }
@@ -61,6 +55,14 @@
         }
     }
 
+    private async Task UpdateProductList()
+    {
+        var context = await _contextFactory.CreateDbContextAsync();
+        _products = context.Products.ToList();
+        await context.DisposeAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+    
     private async Task AddNewProduct()
     {
         await DialogService.OpenAsync<ProductDetail>($"Neues Produkt erstellen",

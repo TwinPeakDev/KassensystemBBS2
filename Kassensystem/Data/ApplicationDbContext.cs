@@ -26,7 +26,7 @@ public class ApplicationDbContext : DbContext
     }
 
 
-    public DbSet<Product> Products;
-    public DbSet<Sold> SellEntries;
-    public DbSet<User> Users;
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Sold> SellEntries { get; set; }
+    public DbSet<User> Users { get; set; }
 }

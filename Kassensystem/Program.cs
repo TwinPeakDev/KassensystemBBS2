@@ -38,7 +38,9 @@ builder.Services.AddResponseCompression(opts =>
 
 var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
 // Add dbcontext factory
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+//builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("kek"));
 
 
 var app = builder.Build();
