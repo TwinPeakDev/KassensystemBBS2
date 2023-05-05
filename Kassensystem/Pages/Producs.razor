@@ -1,10 +1,71 @@
 ﻿@page "/produkte"
+
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.EntityFrameworkCore;
+@using Kassensystem.Data;
+@using Kassensystem.Components;
+@inject NavigationManager Navigation
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory;
+@inject DialogService DialogService
+
+@implements IAsyncDisposable
+
+
 <h3>Produkte</h3>
 
+<RadzenButton Text="Neues Produkt hinzufügen" Click="AddNewProduct" ></RadzenButton>
 
+@if (_products != null)
+{
+    <ProductCardGrid _products="_products" ></ProductCardGrid>
+}
 
 
 
 @code {
-    
+    private HubConnection? hubConnection;
+    private IEnumerable<Product>? _products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
+            .Build();
+        
+        hubConnection.On("UpdatePayments", () => 
+        {
+            ///TODO: implement update after payment has been saved (maybe list past sales in a grid / update that grid)
+        });
+        
+        hubConnection.On("UpdateProducts", async () =>
+        {
+            var context = await _contextFactory.CreateDbContextAsync();
+            _products = context.Products;
+            await context.DisposeAsync();
+        });
+
+        var context = await _contextFactory.CreateDbContextAsync();
+
+        _products = context.Products;
+
+        await context.DisposeAsync();
+        
+        await hubConnection.StartAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    private async Task AddNewProduct()
+    {
+        await DialogService.OpenAsync<ProductDetail>($"Neues Produkt erstellen",
+            new Dictionary<string, object>() { },
+            new DialogOptions() { Width = "60vw", Height = "60vh", Resizable = true, Draggable = true });
+    }
+
 }

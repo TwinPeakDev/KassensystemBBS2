@@ -54,10 +54,7 @@
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On("PaymentSaved", () => 
-        {
-            ///TODO: implement update after payment has been saved (maybe list past sales in a grid / update that grid)
-        });
+        
 
         await hubConnection.StartAsync();
     }

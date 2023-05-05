@@ -8,6 +8,12 @@ public class Product
     public int ID { get; set;}
     public string Name { get; set; }
     public double PriceEur { get; set; }
-    public string Image { get; set; }
-    public List<Sold> SellEntries { get; set; }
+    public string? Image { get; set; }
+    public List<Sold>? SellEntries { get; set; }
+
+    //returns true if all non nullable values have been set
+    public bool ReadyToSave()
+    {
+        return Name != null;
+    }
 }
