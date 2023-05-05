@@ -11,17 +11,30 @@ public class LoginController : Controller
 {
     public static bool SimpleLdapAuth(string username, string password, out LdapEntry? resultEntity)
     {
-        var Host = "ldap.forumsys.com";
-        var BindDN = "cn=read-only-admin,dc=example,dc=com";
-        var BindPassword = "password";
-        var BaseDC = "dc=example,dc=com";
+        string Host, BindDN, BindPassword, BaseDC;
+        int Port;
+        
+        #if (DEBUG)
+        Host = "ldap.forumsys.com";
+        BindDN = "cn=read-only-admin,dc=example,dc=com";
+        BindPassword = "password";
+        BaseDC = "dc=example,dc=com";
+        Port = LdapConnection.DEFAULT_PORT;
+        #else
+        Host = Environment.GetEnvironmentVariable("LDAP_HOST") ?? throw new InvalidOperationException();
+        BindDN = Environment.GetEnvironmentVariable("LDAP_BindDN") ?? throw new InvalidOperationException();
+        BindPassword = Environment.GetEnvironmentVariable("LDAP_BindPassword") ?? throw new InvalidOperationException();
+        BaseDC = Environment.GetEnvironmentVariable("LDAP_BaseDC") ?? throw new InvalidOperationException();
+        Port = int.Parse(Environment.GetEnvironmentVariable("LDAP_PORT") ?? throw new InvalidOperationException());
+        #endif
+        
 
         resultEntity = null;
 
         try
         {
             var connection = new LdapConnection();
-            connection.Connect(Host, LdapConnection.DEFAULT_PORT);
+            connection.Connect(Host, Port);
             connection.Bind(BindDN, BindPassword);
             var searchFilter = $"(uid={username})";
             var entities = connection.Search(BaseDC, LdapConnection.SCOPE_SUB, searchFilter, null, false);
