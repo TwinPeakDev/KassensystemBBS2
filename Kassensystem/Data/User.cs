@@ -4,8 +4,8 @@ using Kassensystem.Data;
 public class User
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int ID { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public List<Sold> SellEntries { get; set; }
+    public int Id { get; set; }
+    public string? FirstName { get; set; } //TODO:Check for null
+    public string? LastName { get; set; } //TODO:Check for null
+    public List<Sold>? SellEntries { get; set; } //TODO:Check for null
 }

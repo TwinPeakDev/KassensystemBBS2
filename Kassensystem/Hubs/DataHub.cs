@@ -24,14 +24,33 @@ public class DataHub : Hub
 
     public async Task SavePayment(Sold sold) 
     {
-        var context = _contextFactory.CreateDbContext();
+        var context = await _contextFactory.CreateDbContextAsync();
 
         await context.SellEntries.AddAsync(sold);
         await context.SaveChangesAsync();
 
         await context.DisposeAsync();
 
-        await Clients.All.SendAsync("PaymentSaved");
+        await Clients.All.SendAsync("UpdatePayments");
+    }
+
+    public async Task SaveProduct(Product product)
+    {
+        var context = await _contextFactory.CreateDbContextAsync();
+
+        if (await context.Products.FindAsync(product.Id) == null)
+        {
+            await context.AddAsync(product);
+        }
+        else
+        {
+            context.Update(product);
+        }
+
+        await context.SaveChangesAsync();
+
+        await context.DisposeAsync();
+        await Clients.All.SendAsync("UpdateProducts");
     }
 
     

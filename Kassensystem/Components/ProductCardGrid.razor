@@ -1,0 +1,27 @@
+@using Kassensystem.Data
+
+@if (Products != null || !Products.Any())
+{
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap" >
+        @foreach (var product in Products)
+        {
+            <RadzenCard>
+                @product.Name
+                <RadzenImage Path="@product.Image" ></RadzenImage>
+            </RadzenCard>
+        }
+    </RadzenStack>
+
+    
+    
+}
+
+
+
+@code {
+    [Parameter]
+    public IEnumerable<Product>? Products { get; set; }
+
+
+
+}

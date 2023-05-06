@@ -1,0 +1,67 @@
+@page "/ProductDetail"
+@using Kassensystem.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject DialogService DialogService
+
+
+@implements IAsyncDisposable
+
+
+
+
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
+    <RadzenTextBox @bind-Value="@curProduct.Name" Placeholder="Name"></RadzenTextBox>
+    <RadzenNumeric @bind-Value="curProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    @if (curProduct.Image != null)
+    {
+        <RadzenImage Path="@curProduct.Image"></RadzenImage>
+    }
+    <RadzenFileInput @bind-Value=@curProduct.Image TValue="string" ChooseText="Bild Hochladen" ></RadzenFileInput>
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!curProduct.ReadyToSave())" ></RadzenButton>
+</RadzenStack>
+    
+
+
+
+@code {
+    [Parameter]
+    public Product? curProduct { get; set; }
+    
+    private HubConnection? hubConnection;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        curProduct ??= new Product();
+        
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
+            .Build();
+
+        await hubConnection.StartAsync();
+        
+
+    }
+
+
+    private async Task Save()
+    {
+        if(hubConnection is not null)
+            await hubConnection.SendAsync("SaveProduct", curProduct);
+        await DisposeAsync();
+        DialogService.Close();
+        
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+}

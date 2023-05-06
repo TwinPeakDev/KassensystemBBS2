@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,12 @@ builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(); 
 
+//Add the different Radzen services
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<TooltipService>();
+builder.Services.AddScoped<ContextMenuService>();
+
 // Add signal r response compression 
 builder.Services.AddResponseCompression(opts =>
 {
@@ -28,10 +36,13 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-// Add dbcontext factory
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
+#if DEBUG
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
+#else
+var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+#endif
 
 var app = builder.Build();
 
