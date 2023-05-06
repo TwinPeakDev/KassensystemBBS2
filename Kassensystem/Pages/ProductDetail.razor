@@ -1,9 +1,12 @@
 @page "/ProductDetail"
 @using Kassensystem.Data
 @using Microsoft.AspNetCore.SignalR.Client
+@using Path = System.IO.Path
+@using System.IO
 @inject NavigationManager Navigation
 @inject DialogService DialogService
-
+@inject ILogger<ProductDetail> Logger
+@inject IWebHostEnvironment WebEnvironment
 
 @implements IAsyncDisposable
 
@@ -11,13 +14,14 @@
 
 
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
-    <RadzenTextBox @bind-Value="@CurProduct.Name" Placeholder="Name"></RadzenTextBox>
-    <RadzenNumeric @bind-Value="CurProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (CurProduct.Image != null)
+    <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
+    <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    @if (PreviewImagePath != "null")
     {
-        <RadzenImage Path="@CurProduct.Image"></RadzenImage>
+        <RadzenImage Path="@PreviewImagePath"></RadzenImage>
     }
-    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!CurProduct.ReadyToSave())" ></RadzenButton>
+    <RadzenUpload Multiple="false" Accept="image/*" Url="upload/single" Progress="@(args => OnUploadImage(args))" class="w-100"  @ref="upload"/>
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!CurrentProduct.ReadyToSave())" ></RadzenButton>
 </RadzenStack>
     
 
@@ -25,16 +29,17 @@
 
 @code {
     [Parameter]
-    public Product? CurProduct { get; set; }
+    public Product? CurrentProduct { get; set; }
     
     private HubConnection? hubConnection;
-
+    RadzenUpload upload;
+    string PreviewImagePath = "";
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         
-        CurProduct ??= new Product();
+        CurrentProduct ??= new Product();
         
         hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
@@ -44,12 +49,37 @@
         
 
     }
+    
+    private Task OnUploadImage(UploadProgressArgs args)
+    {
+        Logger.LogDebug("{ArgsProgress}% \'{Name}\' / {ArgsLoaded} of {ArgsTotal} bytes", args.Progress, args.Files.ToList()[0].Name, args.Loaded, args.Total);
+
+        if (args.Progress == 100)
+        {
+            /*var imagePath = @"\Upload";
+            var uploadPath = WebEnvironment.WebRootPath + imagePath;
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }*/
+
+            var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name);
+            var fullPath = Path.Combine(WebEnvironment.WebRootPath, webPath);
+            
+            var fileString = Convert.ToBase64String(File.ReadAllBytes(fullPath));
+
+            PreviewImagePath = webPath;
+            CurrentProduct.Image = fileString;
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
+    }
 
 
     private async Task Save()
     {
         if(hubConnection is not null)
-            await hubConnection.SendAsync("SaveProduct", CurProduct);
+            await hubConnection.SendAsync("SaveProduct", CurrentProduct);
         await DisposeAsync();
         DialogService.Close();
         
@@ -63,9 +93,4 @@
         }
     }
 
-    void OnComplete(UploadCompleteEventArgs args)
-    {
-        Console.WriteLine(args.RawResponse);
-    }
-    
 }

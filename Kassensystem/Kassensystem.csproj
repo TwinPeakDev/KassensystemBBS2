@@ -40,6 +40,7 @@
       <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\software.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard-base.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\Upload\pexels-magda-ehlers-1300975.jpg" />
     </ItemGroup>
 
 </Project>
