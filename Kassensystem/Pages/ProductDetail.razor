@@ -11,14 +11,13 @@
 
 
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
-    <RadzenTextBox @bind-Value="@curProduct.Name" Placeholder="Name"></RadzenTextBox>
-    <RadzenNumeric @bind-Value="curProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (curProduct.Image != null)
+    <RadzenTextBox @bind-Value="@CurProduct.Name" Placeholder="Name"></RadzenTextBox>
+    <RadzenNumeric @bind-Value="CurProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    @if (CurProduct.Image != null)
     {
-        <RadzenImage Path="@curProduct.Image"></RadzenImage>
+        <RadzenImage Path="@CurProduct.Image"></RadzenImage>
     }
-    <RadzenFileInput @bind-Value=@curProduct.Image TValue="string" ChooseText="Bild Hochladen" ></RadzenFileInput>
-    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!curProduct.ReadyToSave())" ></RadzenButton>
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!CurProduct.ReadyToSave())" ></RadzenButton>
 </RadzenStack>
     
 
@@ -26,7 +25,7 @@
 
 @code {
     [Parameter]
-    public Product? curProduct { get; set; }
+    public Product? CurProduct { get; set; }
     
     private HubConnection? hubConnection;
 
@@ -35,7 +34,7 @@
     {
         await base.OnInitializedAsync();
         
-        curProduct ??= new Product();
+        CurProduct ??= new Product();
         
         hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
@@ -50,7 +49,7 @@
     private async Task Save()
     {
         if(hubConnection is not null)
-            await hubConnection.SendAsync("SaveProduct", curProduct);
+            await hubConnection.SendAsync("SaveProduct", CurProduct);
         await DisposeAsync();
         DialogService.Close();
         
@@ -64,4 +63,9 @@
         }
     }
 
+    void OnComplete(UploadCompleteEventArgs args)
+    {
+        Console.WriteLine(args.RawResponse);
+    }
+    
 }

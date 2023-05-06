@@ -40,9 +40,11 @@ builder.Services.AddResponseCompression(opts =>
 #if DEBUG
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 #else
-var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+//var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+//builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 #endif
+
 
 var app = builder.Build();
 
