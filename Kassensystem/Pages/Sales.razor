@@ -1,9 +1,9 @@
-﻿@page "/produkte"
-
+﻿@page "/verkauf"
+@using Kassensystem.Data
+@using Kassensystem.Components
 @using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.EntityFrameworkCore;
-@using Kassensystem.Data;
-@using Kassensystem.Components;
+@using Microsoft.EntityFrameworkCore
+
 @inject NavigationManager Navigation
 @inject IDbContextFactory<ApplicationDbContext> _contextFactory;
 @inject DialogService DialogService
@@ -11,11 +11,17 @@
 @implements IAsyncDisposable
 
 
-<h3>Produkte</h3>
 
-<RadzenButton Style="margin-bottom: 1rem" Text="Neues Produkt hinzufügen" Click="AddNewProduct" ></RadzenButton>
+<h3>Verkaufen</h3>
 
-<ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.Edit" ></ProductCardGrid>
+@if (_products == null || !_products.Any())
+{
+    <NavLink href="/produkte" > Es sind noch keine Produkte angelegt.</NavLink>
+    
+}
+
+
+<ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.AddToCart" ProductToCart="ProductToCart"  ></ProductCardGrid>
 
 
 
@@ -23,7 +29,8 @@
 @code {
     private HubConnection? hubConnection;
     private IEnumerable<Product>? _products;
-
+    private User curUser;
+    
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
@@ -43,8 +50,11 @@
         await UpdateProductList();
         
         await hubConnection.StartAsync();
-    }
 
+        curUser = new User() { FirstName = "Test", LastName = "User", Cart = new List<Product>()};
+
+    }
+    
     public async ValueTask DisposeAsync()
     {
         if (hubConnection is not null)
@@ -60,13 +70,17 @@
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
     }
-    
-    private async Task AddNewProduct()
+
+    private void ProductToCart(Product obj)
     {
-        await DialogService.OpenAsync<ProductDetail>($"Neues Produkt erstellen",
-            new Dictionary<string, object>() { },
-            new DialogOptions() { Width = "fit-content", Height = "fit-content", Resizable = true, Draggable = true });
+        if (curUser.Cart == null) curUser.Cart = new List<Product>();
+        
+        curUser.Cart.Add(obj as Product);
         
     }
 
+    void GotoProducts()
+    {
+        
+    }
 }

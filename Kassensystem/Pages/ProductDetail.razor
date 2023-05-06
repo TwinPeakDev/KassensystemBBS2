@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
 @inject DialogService DialogService
+@inject ILogger<ProductDetail> Logger
 
 
 @implements IAsyncDisposable
@@ -48,8 +49,15 @@
 
     private async Task Save()
     {
-        if(hubConnection is not null)
+        try
+        {
             await hubConnection.SendAsync("SaveProduct", CurProduct);
+            Logger.LogInformation($"Product ID:{CurProduct.Id} Name:{CurProduct.Name} was saved.");
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e + $" | while trying to save Product ID:{CurProduct.Id} Name:{CurProduct.Name}");
+        }
         await DisposeAsync();
         DialogService.Close();
         
@@ -61,11 +69,6 @@
         {
             await hubConnection.DisposeAsync();
         }
-    }
-
-    void OnComplete(UploadCompleteEventArgs args)
-    {
-        Console.WriteLine(args.RawResponse);
     }
     
 }
