@@ -1,14 +1,20 @@
 @using Kassensystem.Data
+@using Kassensystem.Pages
+@inject DialogService DialogService
+
+
 
 @if (Products != null || !Products.Any())
 {
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap" >
         @foreach (var product in Products)
         {
-            <RadzenCard>
-                @product.Name
-                <RadzenImage Path="@product.Image" ></RadzenImage>
-            </RadzenCard>
+            <div onclick="@(() => ProductClicked(product))" >
+                <RadzenCard>
+                    @product.Name
+                    <RadzenImage Path="@product.Image" ></RadzenImage>
+                </RadzenCard>
+            </div>
         }
     </RadzenStack>
 
@@ -22,6 +28,33 @@
     [Parameter]
     public IEnumerable<Product>? Products { get; set; }
 
+    [Parameter]
+    public InteractionState State { get; set; }
 
+    public enum InteractionState
+    {
+        Edit,
+        AddToCart,
+    }
+
+
+    async Task ProductClicked(Product product)
+    {
+        switch (State)
+        {
+            case InteractionState.Edit:
+                await DialogService.OpenAsync<ProductDetail>($"Produkt {product.Name} bearbeiten",
+                    new Dictionary<string, object>() { { "CurProduct", product } },
+                    new DialogOptions() { Width = "fit-content", Height = "fit-content", Resizable = true, Draggable = true });
+            
+            break;
+                
+            case InteractionState.AddToCart:
+            
+            break;
+        }
+    }
+        
+        
 
 }

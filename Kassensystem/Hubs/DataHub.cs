@@ -38,15 +38,7 @@ public class DataHub : Hub
     {
         var context = await _contextFactory.CreateDbContextAsync();
 
-        if (await context.Products.FindAsync(product.Id) == null)
-        {
-            await context.AddAsync(product);
-        }
-        else
-        {
-            context.Update(product);
-        }
-
+        context.Update(product);        
         await context.SaveChangesAsync();
 
         await context.DisposeAsync();

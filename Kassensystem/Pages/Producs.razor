@@ -17,7 +17,7 @@
 
 @if (_products != null)
 {
-    <ProductCardGrid Products="_products" ></ProductCardGrid>
+    <ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.Edit" ></ProductCardGrid>
 }
 
 
@@ -67,7 +67,7 @@
     {
         await DialogService.OpenAsync<ProductDetail>($"Neues Produkt erstellen",
             new Dictionary<string, object>() { },
-            new DialogOptions() { Width = "60vw", Height = "60vh", Resizable = true, Draggable = true });
+            new DialogOptions() { Width = "fit-content", Height = "fit-content", Resizable = true, Draggable = true });
     }
 
 }
