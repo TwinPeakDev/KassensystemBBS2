@@ -16,12 +16,13 @@
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
     <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
     <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (PreviewImagePath != "null")
+    @if (CurrentProduct is {ImageBinary: not null })
     {
-        <RadzenImage Path="@PreviewImagePath"></RadzenImage>
+        <RadzenImage Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
     }
-    <RadzenUpload Multiple="false" Accept="image/*" Url="upload/single" Progress="@(args => OnUploadImage(args))" class="w-100"  @ref="upload"/>
-    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!CurrentProduct.ReadyToSave())" ></RadzenButton>
+    <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
+
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(CurrentProduct != null && !CurrentProduct.ReadyToSave())" ></RadzenButton>
 </RadzenStack>
     
 
@@ -31,9 +32,7 @@
     [Parameter]
     public Product? CurrentProduct { get; set; }
     
-    private HubConnection? hubConnection;
-    RadzenUpload upload;
-    string PreviewImagePath = "";
+    private HubConnection? _hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
@@ -41,35 +40,27 @@
         
         CurrentProduct ??= new Product();
         
-        hubConnection = new HubConnectionBuilder()
+        _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
             .Build();
 
-        await hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
         
 
     }
-    
+
     private Task OnUploadImage(UploadProgressArgs args)
     {
         Logger.LogDebug("{ArgsProgress}% \'{Name}\' / {ArgsLoaded} of {ArgsTotal} bytes", args.Progress, args.Files.ToList()[0].Name, args.Loaded, args.Total);
 
         if (args.Progress == 100)
         {
-            /*var imagePath = @"\Upload";
-            var uploadPath = WebEnvironment.WebRootPath + imagePath;
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }*/
-
             var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name);
             var fullPath = Path.Combine(WebEnvironment.WebRootPath, webPath);
             
-            var fileString = Convert.ToBase64String(File.ReadAllBytes(fullPath));
+            var imageBinary = Convert.ToBase64String(File.ReadAllBytes(fullPath));
 
-            PreviewImagePath = webPath;
-            CurrentProduct.Image = fileString;
+            if (CurrentProduct != null) CurrentProduct.ImageBinary = imageBinary;
             InvokeAsync(StateHasChanged);
         }
         return Task.CompletedTask;
@@ -78,8 +69,8 @@
 
     private async Task Save()
     {
-        if(hubConnection is not null)
-            await hubConnection.SendAsync("SaveProduct", CurrentProduct);
+        if(_hubConnection is not null)
+            await _hubConnection.SendAsync("SaveProduct", CurrentProduct);
         await DisposeAsync();
         DialogService.Close();
         
@@ -87,9 +78,9 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection is not null)
+        if (_hubConnection is not null)
         {
-            await hubConnection.DisposeAsync();
+            await _hubConnection.DisposeAsync();
         }
     }
 

@@ -1,6 +1,7 @@
 @using Kassensystem.Data
 @using Kassensystem.Pages
 @inject DialogService DialogService
+@inject IWebHostEnvironment WebEnvironment
 
 
 
@@ -12,7 +13,7 @@
             <div onclick="@(() => ProductClicked(product))" >
                 <RadzenCard>
                     @product.Name
-                    <RadzenImage Path="@product.Image" ></RadzenImage>
+                    <RadzenImage Path="@($"data:image/jpeg;base64,{product.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
                 </RadzenCard>
             </div>
         }

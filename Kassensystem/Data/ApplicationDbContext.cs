@@ -22,7 +22,6 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasMany(u => u.SellEntries)
             .WithOne(e => e.SoldBy);
-
     }
 
 
