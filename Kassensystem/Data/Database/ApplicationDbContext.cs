@@ -1,23 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Kassensystem.Data;
+namespace Kassensystem.Data.Database;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-
-
-
-    }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Product>()
             .HasMany(p => p.SellEntries)
             .WithOne(s => s.Item);
+
+        modelBuilder.Entity<Product>()
+            .HasOne(e => e.Image)
+            .WithOne(e => e.Product)
+            .HasForeignKey<ProductImage>();
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.SellEntries)
@@ -31,6 +30,7 @@ public class ApplicationDbContext : DbContext
 
 
     public DbSet<Product> Products { get; set; }
+    public DbSet<ProductImage> ProductImage { get; set; }
     public DbSet<Sold> SellEntries { get; set; }
     public DbSet<User> Users { get; set; }
 }

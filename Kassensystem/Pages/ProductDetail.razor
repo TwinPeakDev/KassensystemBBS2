@@ -1,10 +1,13 @@
 @page "/ProductDetail"
 @using Kassensystem.Data
 @using Microsoft.AspNetCore.SignalR.Client
+@using Path = System.IO.Path
+@using System.IO
+@using Newtonsoft.Json
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject ILogger<ProductDetail> Logger
-
+@inject IWebHostEnvironment WebEnvironment
 
 @implements IAsyncDisposable
 
@@ -12,13 +15,15 @@
 
 
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
-    <RadzenTextBox @bind-Value="@CurProduct.Name" Placeholder="Name"></RadzenTextBox>
-    <RadzenNumeric @bind-Value="CurProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (CurProduct.Image != null)
+    <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
+    <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    @if (CurrentProduct is {Image: not null })
     {
-        <RadzenImage Path="@CurProduct.Image"></RadzenImage>
+        <RadzenImage Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
     }
-    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!CurProduct.ReadyToSave())" ></RadzenButton>
+    <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
+
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(CurrentProduct != null && !CurrentProduct.ReadyToSave())" ></RadzenButton>
 </RadzenStack>
     
 
@@ -26,24 +31,41 @@
 
 @code {
     [Parameter]
-    public Product? CurProduct { get; set; }
+    public Product? CurrentProduct { get; set; }
     
-    private HubConnection? hubConnection;
-
+    private HubConnection? _hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         
-        CurProduct ??= new Product();
+        CurrentProduct ??= new Product();
         
-        hubConnection = new HubConnectionBuilder()
+        _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
             .Build();
 
-        await hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
         
 
+    }
+
+    private Task OnUploadImage(UploadProgressArgs args)
+    {
+        Logger.LogDebug("{ArgsProgress}% \'{Name}\' / {ArgsLoaded} of {ArgsTotal} bytes", args.Progress, args.Files.ToList()[0].Name, args.Loaded, args.Total);
+
+        if (args.Progress == 100)
+        {
+            var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name.Replace(" ", ""));
+
+            if (CurrentProduct != null)
+                CurrentProduct.Image = new ProductImage()
+                {
+                    Name = args.Files.ToList()[0].Name.Replace(" ", "")
+                };
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
     }
 
 
@@ -51,7 +73,7 @@
     {
         try
         {
-            await hubConnection.SendAsync("SaveProduct", CurProduct);
+            await _hubConnection.SendAsync("SaveProduct", CurProduct);
             Logger.LogInformation($"Product ID:{CurProduct.Id} Name:{CurProduct.Name} was saved.");
         }
         catch (Exception e)
@@ -65,10 +87,10 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection is not null)
+        if (_hubConnection is not null)
         {
-            await hubConnection.DisposeAsync();
+            await _hubConnection.DisposeAsync();
         }
     }
-    
+
 }

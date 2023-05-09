@@ -14,20 +14,12 @@ public class LoginController : Controller
         string Host, BindDN, BindPassword, BaseDC;
         int Port;
         
-        #if (DEBUG)
-        Host = "ldap.forumsys.com";
-        BindDN = "cn=read-only-admin,dc=example,dc=com";
-        BindPassword = "password";
-        BaseDC = "dc=example,dc=com";
-        Port = LdapConnection.DEFAULT_PORT;
-        #else
-        Host = Environment.GetEnvironmentVariable("LDAP_HOST") ?? throw new InvalidOperationException();
-        BindDN = Environment.GetEnvironmentVariable("LDAP_BindDN") ?? throw new InvalidOperationException();
-        BindPassword = Environment.GetEnvironmentVariable("LDAP_BindPassword") ?? throw new InvalidOperationException();
-        BaseDC = Environment.GetEnvironmentVariable("LDAP_BaseDC") ?? throw new InvalidOperationException();
-        Port = int.Parse(Environment.GetEnvironmentVariable("LDAP_PORT") ?? throw new InvalidOperationException());
-        #endif
-        
+        Host = Environment.GetEnvironmentVariable("LDAP_HOST") ?? "ldap.forumsys.com";
+        BindDN = Environment.GetEnvironmentVariable("LDAP_BindDN") ?? "cn=read-only-admin,dc=example,dc=com";
+        BindPassword = Environment.GetEnvironmentVariable("LDAP_BindPassword") ?? "password";
+        BaseDC = Environment.GetEnvironmentVariable("LDAP_BaseDC") ?? "dc=example,dc=com";
+        Port = int.Parse(Environment.GetEnvironmentVariable("LDAP_PORT") ?? LdapConnection.DEFAULT_PORT.ToString());
+
 
         resultEntity = null;
 

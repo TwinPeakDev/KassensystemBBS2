@@ -2,6 +2,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Kassensystem.Data;
+using Kassensystem.Data.Database;
 using Kassensystem.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -42,8 +43,8 @@ if(inMemory)
     builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 else
 {
-    //var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-    //builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+    builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
 

@@ -22,6 +22,7 @@
       </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.5" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.5" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Novell.Directory.Ldap" Version="2.2.1" />
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
       <PackageReference Include="Radzen.Blazor" Version="4.10.2" />
@@ -40,6 +41,11 @@
       <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\software.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard-base.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\Upload\pexels-magda-ehlers-1300975.jpg" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\Uploads\" />
     </ItemGroup>
 
 </Project>
