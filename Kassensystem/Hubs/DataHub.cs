@@ -45,5 +45,39 @@ public class DataHub : Hub
         await Clients.All.SendAsync("UpdateProducts");
     }
 
+    public async Task RemoveProduct(Product product)
+    {
+        var context = await _contextFactory.CreateDbContextAsync();
+        
+        context.Remove(product);        
+        await context.SaveChangesAsync();
+        
+        await context.DisposeAsync();
+        await Clients.All.SendAsync("UpdateProducts");
+    }
+
+    public async Task AddCardItem(User user,Product product)
+    {
+        var context = await _contextFactory.CreateDbContextAsync();
+        if (user.Cart != null) user.Cart.Add(product);
+
+        context.Update(user);
+        await context.SaveChangesAsync();
+        
+        await context.DisposeAsync();
+        await Clients.All.SendAsync("UpdateCard");
+    }
     
+    public async Task RemoveCardItem(User user,Product product)
+    {
+        var context = await _contextFactory.CreateDbContextAsync();
+        if (user.Cart != null) user.Cart.Remove(product);
+        context.Update(user);
+        await context.SaveChangesAsync();
+        
+        await context.DisposeAsync();
+        await Clients.All.SendAsync("UpdateCard");
+    }
+
+
 }
