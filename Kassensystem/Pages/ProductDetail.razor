@@ -3,7 +3,6 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Path = System.IO.Path
 @using System.IO
-@using Newtonsoft.Json
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject ILogger<ProductDetail> Logger
@@ -73,12 +72,12 @@
     {
         try
         {
-            await _hubConnection.SendAsync("SaveProduct", CurProduct);
-            Logger.LogInformation($"Product ID:{CurProduct.Id} Name:{CurProduct.Name} was saved.");
+            await _hubConnection.SendAsync("SaveProduct", CurrentProduct);
+            Logger.LogInformation("Product ID:{CurrentProductId} Name:{CurrentProductName} was saved.", CurrentProduct.Id, CurrentProduct.Name);
         }
         catch (Exception e)
         {
-            Logger.LogError(e + $" | while trying to save Product ID:{CurProduct.Id} Name:{CurProduct.Name}");
+            if (CurrentProduct != null) Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct.Id} Name:{CurrentProduct.Name}");
         }
         await DisposeAsync();
         DialogService.Close();

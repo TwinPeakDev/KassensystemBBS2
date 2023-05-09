@@ -1,6 +1,7 @@
 ﻿@page "/verkauf"
 @using Kassensystem.Data
 @using Kassensystem.Components
+@using Kassensystem.Data.Database
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.EntityFrameworkCore
 
@@ -66,7 +67,7 @@
     private async Task UpdateProductList()
     {
         var context = await _contextFactory.CreateDbContextAsync();
-        _products = context.Products.ToList();
+        _products = context.Products.Include(s => s.Image).ToList();
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
     }

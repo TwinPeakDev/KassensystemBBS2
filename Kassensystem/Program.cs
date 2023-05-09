@@ -37,7 +37,7 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var inMemory = true;
+var inMemory = false;
 
 if(inMemory)
     builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));

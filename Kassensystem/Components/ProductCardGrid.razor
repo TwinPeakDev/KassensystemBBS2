@@ -11,7 +11,7 @@
             <div onclick="@(() => ProductClicked(product))" >
                 <RadzenCard class="rz-ripple" >
                     @product.Name
-                    <RadzenImage Path="@($"data:image/jpeg;base64,{product.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
+                    <RadzenImage Path="@($"data:image/*;base64,{product.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
                 </RadzenCard>
             </div>
         }

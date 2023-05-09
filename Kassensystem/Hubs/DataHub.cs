@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Kassensystem.Data.Database;
-using Newtonsoft.Json;
 
 namespace Kassensystem.Hubs;
 
@@ -36,11 +35,10 @@ public class DataHub : Hub
         await Clients.All.SendAsync("UpdatePayments");
     }
 
-    public async Task SaveProduct(string productJson)
+    public async Task SaveProduct(Product product)
     {
         var context = await _contextFactory.CreateDbContextAsync();
 
-        var product = JsonConvert.DeserializeObject<Product>(productJson) ?? throw new InvalidOperationException();
         await context.Products.AddAsync(product);        
         await context.SaveChangesAsync();
 
