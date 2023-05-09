@@ -57,14 +57,10 @@
         if (args.Progress == 100)
         {
             var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name.Replace(" ", ""));
-            var fullPath = Path.Combine(WebEnvironment.WebRootPath, webPath);
-            
-            var imageBinary = Convert.ToBase64String(File.ReadAllBytes(fullPath));
 
             if (CurrentProduct != null)
                 CurrentProduct.Image = new ProductImage()
                 {
-                    Binary = imageBinary,
                     Name = args.Files.ToList()[0].Name.Replace(" ", "")
                 };
             InvokeAsync(StateHasChanged);

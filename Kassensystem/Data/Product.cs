@@ -34,7 +34,7 @@ public class Product
             var fullPath = Path.Combine(uploadPath,  Image.Name);
             if (!File.Exists(fullPath))
             {
-                File.WriteAllBytes(fullPath, Convert.FromBase64String(Image.Binary));
+                return "";
             }
         
             return Convert.ToBase64String(File.ReadAllBytes(fullPath));
