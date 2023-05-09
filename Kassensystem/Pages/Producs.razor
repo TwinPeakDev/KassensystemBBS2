@@ -4,6 +4,7 @@
 @using Microsoft.EntityFrameworkCore;
 @using Kassensystem.Data;
 @using Kassensystem.Components;
+@using Kassensystem.Data.Database
 @inject NavigationManager Navigation
 @inject IDbContextFactory<ApplicationDbContext> ContextFactory;
 @inject DialogService DialogService
@@ -58,7 +59,7 @@
     private async Task UpdateProductList()
     {
         var context = await ContextFactory.CreateDbContextAsync();
-        _products = context.Products.ToList();
+        _products = context.Products.Include(s => s.Image).ToList();
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
     }

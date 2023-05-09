@@ -40,7 +40,7 @@ public class UploadController : Controller
                 Directory.CreateDirectory(uploadPath);
             }
 
-            var fullPath = Path.Combine(uploadPath, file.FileName);
+            var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
             using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
             {
                 await file.CopyToAsync(fileStream);

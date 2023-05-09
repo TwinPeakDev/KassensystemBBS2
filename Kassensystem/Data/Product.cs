@@ -5,12 +5,13 @@ namespace Kassensystem.Data;
 
 public class Product
 {
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set;}
     public string? Name { get; set; } //TODO:Check for null
     public double PriceEuro { get; set; }
-    public string? ImageBinary { get; set; }
-    
+    public ProductImage? Image { get; set; }
+
     //TODO: Pfand
     //TODO: nicht mehr als 5000€
     //TODO: nur bei feature request kosten.
@@ -28,13 +29,17 @@ public class Product
     {
         var imagePath = @"\Uploads";
         var uploadPath = webRootPath + imagePath;
-        var imageName = ImageBinary.Substring(0, 10);
-        var fullPath = Path.Combine(uploadPath, imageName);
-        if (!File.Exists(fullPath))
+        if (Image != null)
         {
-            File.WriteAllBytes(fullPath, Convert.FromBase64String(ImageBinary));
-        }
+            var fullPath = Path.Combine(uploadPath,  Image.Name);
+            if (!File.Exists(fullPath))
+            {
+                File.WriteAllBytes(fullPath, Convert.FromBase64String(Image.Binary));
+            }
         
-        return Convert.ToBase64String(File.ReadAllBytes(fullPath));
+            return Convert.ToBase64String(File.ReadAllBytes(fullPath));
+        }
+
+        return "";
     }
 }

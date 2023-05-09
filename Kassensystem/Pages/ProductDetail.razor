@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Path = System.IO.Path
 @using System.IO
+@using Newtonsoft.Json
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject ILogger<ProductDetail> Logger
@@ -16,7 +17,7 @@
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
     <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
     <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (CurrentProduct is {ImageBinary: not null })
+    @if (CurrentProduct is {Image: not null })
     {
         <RadzenImage Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
     }
@@ -55,12 +56,17 @@
 
         if (args.Progress == 100)
         {
-            var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name);
+            var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name.Replace(" ", ""));
             var fullPath = Path.Combine(WebEnvironment.WebRootPath, webPath);
             
             var imageBinary = Convert.ToBase64String(File.ReadAllBytes(fullPath));
 
-            if (CurrentProduct != null) CurrentProduct.ImageBinary = imageBinary;
+            if (CurrentProduct != null)
+                CurrentProduct.Image = new ProductImage()
+                {
+                    Binary = imageBinary,
+                    Name = args.Files.ToList()[0].Name.Replace(" ", "")
+                };
             InvokeAsync(StateHasChanged);
         }
         return Task.CompletedTask;
@@ -70,7 +76,7 @@
     private async Task Save()
     {
         if(_hubConnection is not null)
-            await _hubConnection.SendAsync("SaveProduct", CurrentProduct);
+            await _hubConnection.SendAsync("SaveProduct", JsonConvert.SerializeObject(CurrentProduct));
         await DisposeAsync();
         DialogService.Close();
         

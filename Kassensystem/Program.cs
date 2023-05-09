@@ -2,6 +2,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Kassensystem.Data;
+using Kassensystem.Data.Database;
 using Kassensystem.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -64,7 +65,11 @@ app.UseRouting();
 
 app.MapControllers();
 app.MapBlazorHub();
-app.MapHub<DataHub>("/datahub");
+app.MapHub<DataHub>("/datahub", o =>
+{
+    o.ApplicationMaxBufferSize = 200000;
+    o.TransportMaxBufferSize = 200000;
+});
 app.MapFallbackToPage("/_Host");
 
 app.Run();
