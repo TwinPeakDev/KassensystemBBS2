@@ -23,6 +23,7 @@ using Kassensystem.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,7 +57,7 @@ if(inMemory)
 else
 {
     var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-    builder.Services.AddDbContextFactory<DataContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    builder.Services.AddDbContextFactory<DataContext>(options => options.UseMySql(connectionString, ServerVersion.Create(new Version(8,0), ServerType.MySql)));
 }
 
 
