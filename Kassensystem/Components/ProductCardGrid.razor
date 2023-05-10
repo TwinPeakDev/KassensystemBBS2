@@ -1,7 +1,6 @@
 @using Kassensystem.Data
 @using Kassensystem.Pages
 @inject DialogService DialogService
-@inject IWebHostEnvironment WebEnvironment
 
 @if (Products != null || !Products.Any())
 {
@@ -11,7 +10,9 @@
             <div onclick="@(() => ProductClicked(product))" >
                 <RadzenCard class="rz-ripple" >
                     @product.Name
-                    <RadzenImage Path="@($"data:image/*;base64,{product.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
+                    @product.GetImageWidthAndHeight().Item1 width 
+                    @product.GetImageWidthAndHeight().Item2 height
+                    <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{product.GetLocalImageBase64()}")"></RadzenImage>
                 </RadzenCard>
             </div>
         }
@@ -47,7 +48,7 @@
         {
             case InteractionState.Edit:
                 await DialogService.OpenAsync<ProductDetail>($"Produkt {product.Name} bearbeiten",
-                    new Dictionary<string, object>() { { "CurProduct", product } },
+                    new Dictionary<string, object>() { { "CurrentProduct", product } },
                     new DialogOptions() { Width = "fit-content", Height = "fit-content", Resizable = true, Draggable = true });
                 break;
                 

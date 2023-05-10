@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
+using System.Net.Mime;
 
 namespace Kassensystem.Data;
 
@@ -10,14 +12,7 @@ public class Product
     public int Id { get; set;}
     public string Name { get; set; } 
     public double PriceEuro { get; set; }
-    public ProductImage? Image { get; set; }
-
-    //TODO: Pfand
-    //TODO: nicht mehr als 5000€
-    //TODO: nur bei feature request kosten.
-    //TODO: mann kann auch support punkte kaufen
-    //TODO: mit marko in der signal gruppe mal drüber render
-
+    public string? ImageName { get; set; }
     public List<Sold>? SellEntries { get; set; }
     public User? User { get; set; }
 
@@ -26,21 +21,29 @@ public class Product
     {
         return Name != null;
     }
-    public string GetLocalImageBinary(string webRootPath)
+    
+    public string GetLocalImageBase64()
     {
-        var imagePath = @"\Uploads";
-        var uploadPath = webRootPath + imagePath;
-        if (Image != null)
-        {
-            var fullPath = Path.Combine(uploadPath,  Image.Name);
-            if (!File.Exists(fullPath))
-            {
-                return "";
-            }
+        var imageFolder = @"\wwwroot\Uploads";
+        var uploadPath = Environment.CurrentDirectory + imageFolder;
+        if (ImageName == null) return "";
         
-            return Convert.ToBase64String(File.ReadAllBytes(fullPath));
-        }
+        var fullPath = Path.Combine(uploadPath,  ImageName);
 
-        return "";
+        return !File.Exists(fullPath) ? "" : Convert.ToBase64String(File.ReadAllBytes(fullPath));
+    }
+
+
+    public Tuple<int, int> GetImageWidthAndHeight()
+    {
+        byte[] imageBytes = Convert.FromBase64String(GetLocalImageBase64());
+        
+        var ms = new MemoryStream(imageBytes);
+        
+        ///TODO: system.drawing image from stream
+        ///TODO: get height and width
+        
+        
+        return new Tuple<int, int>(0, 0);
     }
 }

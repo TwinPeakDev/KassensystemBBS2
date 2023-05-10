@@ -57,7 +57,7 @@
     private async Task UpdateProductList()
     {
         var context = await ContextFactory.CreateDbContextAsync();
-        _products = context.Products.Include(s => s.Image).ToList();
+        _products = context.Products.ToList();
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
     }

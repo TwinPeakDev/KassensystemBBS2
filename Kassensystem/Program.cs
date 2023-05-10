@@ -1,16 +1,9 @@
-using System.Linq;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Kassensystem.Data;
 using Kassensystem.Data.Database;
 using Kassensystem.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +30,7 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var inMemory = false;
+var inMemory = true;
 
 if(inMemory)
     builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));

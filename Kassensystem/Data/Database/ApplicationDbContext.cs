@@ -13,11 +13,6 @@ public class ApplicationDbContext : DbContext
             .HasMany(p => p.SellEntries)
             .WithOne(s => s.Item);
 
-        modelBuilder.Entity<Product>()
-            .HasOne(e => e.Image)
-            .WithOne(e => e.Product)
-            .HasForeignKey<ProductImage>();
-
         modelBuilder.Entity<User>()
             .HasMany(u => u.SellEntries)
             .WithOne(e => e.SoldBy);
@@ -30,7 +25,6 @@ public class ApplicationDbContext : DbContext
 
 
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductImage> ProductImage { get; set; }
     public DbSet<Sold> SellEntries { get; set; }
     public DbSet<User> Users { get; set; }
 }

@@ -1,12 +1,9 @@
 @page "/ProductDetail"
 @using Kassensystem.Data
 @using Microsoft.AspNetCore.SignalR.Client
-@using Path = System.IO.Path
-@using System.IO
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject ILogger<ProductDetail> Logger
-@inject IWebHostEnvironment WebEnvironment
 
 @implements IAsyncDisposable
 
@@ -16,9 +13,9 @@
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
     <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
     <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (CurrentProduct is {Image: not null })
+    @if (CurrentProduct is {ImageName: not null })
     {
-        <RadzenImage Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBinary(WebEnvironment.WebRootPath)}")"></RadzenImage>
+        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBase64()}")"></RadzenImage>
     }
     <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
 
@@ -55,13 +52,7 @@
 
         if (args.Progress == 100)
         {
-            var webPath = Path.Combine("Uploads", args.Files.ToList()[0].Name.Replace(" ", ""));
-
-            if (CurrentProduct != null)
-                CurrentProduct.Image = new ProductImage()
-                {
-                    Name = args.Files.ToList()[0].Name.Replace(" ", "")
-                };
+            if (CurrentProduct != null) CurrentProduct.ImageName = args.Files.FirstOrDefault()?.Name.Replace(" ", "") ?? DateTime.Now.ToLongDateString().GetHashCode().ToString();
             InvokeAsync(StateHasChanged);
         }
         return Task.CompletedTask;
