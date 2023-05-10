@@ -28,9 +28,9 @@ namespace Kassensystem.Hubs;
 
 public class DataHub : Hub
 {
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly IDbContextFactory<DataContext> _contextFactory;
 
-    public DataHub(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public DataHub(IDbContextFactory<DataContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }

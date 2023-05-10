@@ -1,11 +1,7 @@
 {
   "env": [
-    {
-      "name": "ConnectionString",
-      "value": "value"
-    }
   ],
   "prune": true,
   "pullImage": true,
-  "stackFileContent": "version: '2.1'\nnetworks:\n    portainer_internal:\n      external: true\nservices:\n  develop:\n    image: saile2204/kassensystem-bbs2-wob:latest-develop\n    environment:\n      - PUID=1000\n      - PGID=1000\n      - TZ=Etc/UTC\n    networks:\n      - portainer_internal\n    restart: unless-stopped"
+  "stackFileContent": "version: '2.1'\nnetworks:\n    portainer_internal:\n      external: true\nservices:\n  develop:\n    image: saile2204/kassensystem-bbs2-wob:latest-develop\n    environment:\n      - PUID=1000\n      - PGID=1000\n      - TZ=Etc/UTC\n      - ConnectionString=Server=HOST;Database=DATABASE;Uid=USER;Pwd=PASSWORD\n    networks:\n      - portainer_internal\n    restart: unless-stopped"
 }
