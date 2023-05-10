@@ -49,14 +49,14 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var inMemory = true;
+var inMemory = false;
 
 if(inMemory)
-    builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
+    builder.Services.AddDbContextFactory<DataContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 else
 {
     var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-    builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    builder.Services.AddDbContextFactory<DataContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
 
@@ -83,10 +83,10 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapHub<DataHub>("/datahub");
 app.MapFallbackToPage("/_Host");
-
+var dbFactory = app.Services.GetRequiredService<IDbContextFactory<DataContext>>();
 if (inMemory)
 {
-    var dbFactory = app.Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+    
     var db = await dbFactory.CreateDbContextAsync();
     var rd = new Random();
 
@@ -104,6 +104,11 @@ if (inMemory)
     await db.Products.AddRangeAsync(products);
     await db.SaveChangesAsync();
 
+}
+else
+{
+    var db = await dbFactory.CreateDbContextAsync();
+    await db.Database.MigrateAsync();
 }
 
 app.Run();
