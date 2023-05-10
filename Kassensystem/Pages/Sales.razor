@@ -1,0 +1,106 @@
+﻿@*
+Copyright (C) 2023  
+Elias Stepanik: https://github.com/eliasstepanik
+Olivia Streun: https://github.com/nnuuvv
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/.
+*@
+
+@page "/verkauf"
+@using Kassensystem.Data
+@using Kassensystem.Components
+@using Kassensystem.Data.Database
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.EntityFrameworkCore
+
+@inject NavigationManager Navigation
+@inject IDbContextFactory<ApplicationDbContext> _contextFactory;
+@inject DialogService DialogService
+
+@implements IAsyncDisposable
+
+
+
+<h3>Verkaufen</h3>
+
+@if (_products == null || !_products.Any())
+{
+    <NavLink href="/produkte" > Es sind noch keine Produkte angelegt.</NavLink>
+    
+}
+
+
+<ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.AddToCart" ProductToCart="ProductToCart"  ></ProductCardGrid>
+
+
+
+
+@code {
+    private HubConnection? hubConnection;
+    private IEnumerable<Product>? _products;
+    private User curUser;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
+            .Build();
+        
+        hubConnection.On("UpdatePayments", () => 
+        {
+            ///TODO: implement update after payment has been saved (maybe list past sales in a grid / update that grid)
+        });
+        
+        hubConnection.On("UpdateProducts", async () =>
+        {
+            await UpdateProductList();
+        });
+
+        await UpdateProductList();
+        
+        await hubConnection.StartAsync();
+
+        curUser = new User() { FirstName = "Test", LastName = "User", Cart = new List<Product>()};
+
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    private async Task UpdateProductList()
+    {
+        var context = await _contextFactory.CreateDbContextAsync();
+        _products = context.Products.ToList();
+        await context.DisposeAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ProductToCart(Product obj)
+    {
+        if (curUser.Cart == null) curUser.Cart = new List<Product>();
+        
+        curUser.Cart.Add(obj as Product);
+        
+    }
+
+    void GotoProducts()
+    {
+        
+    }
+}

@@ -14,20 +14,12 @@ public class LoginController : Controller
         string Host, BindDN, BindPassword, BaseDC;
         int Port;
         
-        #if (DEBUG)
-        Host = "ldap.forumsys.com";
-        BindDN = "cn=read-only-admin,dc=example,dc=com";
-        BindPassword = "password";
-        BaseDC = "dc=example,dc=com";
-        Port = LdapConnection.DEFAULT_PORT;
-        #else
         Host = Environment.GetEnvironmentVariable("LDAP_HOST") ?? "ldap.forumsys.com";
         BindDN = Environment.GetEnvironmentVariable("LDAP_BindDN") ?? "cn=read-only-admin,dc=example,dc=com";
         BindPassword = Environment.GetEnvironmentVariable("LDAP_BindPassword") ?? "password";
         BaseDC = Environment.GetEnvironmentVariable("LDAP_BaseDC") ?? "dc=example,dc=com";
         Port = int.Parse(Environment.GetEnvironmentVariable("LDAP_PORT") ?? LdapConnection.DEFAULT_PORT.ToString());
-        #endif
-        
+
 
         resultEntity = null;
 

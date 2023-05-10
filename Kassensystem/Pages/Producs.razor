@@ -4,60 +4,59 @@
 @using Microsoft.EntityFrameworkCore;
 @using Kassensystem.Data;
 @using Kassensystem.Components;
+@using Kassensystem.Data.Database
 @inject NavigationManager Navigation
-@inject IDbContextFactory<ApplicationDbContext> _contextFactory;
+@inject IDbContextFactory<ApplicationDbContext> ContextFactory;
 @inject DialogService DialogService
 
 @implements IAsyncDisposable
 
 
-<h3>Produkte</h3>
+<h3>Products</h3>
 
-<RadzenButton Style="margin-bottom: 1rem" Text="Neues Produkt hinzufügen" Click="AddNewProduct" ></RadzenButton>
+<RadzenButton Style="margin-bottom: 1rem" Text="Create new Product" Click="AddNewProduct" ></RadzenButton>
 
-@if (_products != null)
-{
-    <ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.Edit" ></ProductCardGrid>
-}
+<ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.Edit" ></ProductCardGrid>
+
 
 
 
 @code {
-    private HubConnection? hubConnection;
+    private HubConnection? _hubConnection;
     private IEnumerable<Product>? _products;
 
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
+        _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
             .Build();
         
-        hubConnection.On("UpdatePayments", () => 
+        _hubConnection.On("UpdatePayments", () => 
         {
             ///TODO: implement update after payment has been saved (maybe list past sales in a grid / update that grid)
         });
         
-        hubConnection.On("UpdateProducts", async () =>
+        _hubConnection.On("UpdateProducts", async () =>
         {
             await UpdateProductList();
         });
 
         await UpdateProductList();
         
-        await hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection is not null)
+        if (_hubConnection is not null)
         {
-            await hubConnection.DisposeAsync();
+            await _hubConnection.DisposeAsync();
         }
     }
 
     private async Task UpdateProductList()
     {
-        var context = await _contextFactory.CreateDbContextAsync();
+        var context = await ContextFactory.CreateDbContextAsync();
         _products = context.Products.ToList();
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
@@ -65,9 +64,10 @@
     
     private async Task AddNewProduct()
     {
-        await DialogService.OpenAsync<ProductDetail>($"Neues Produkt erstellen",
-            new Dictionary<string, object>() { },
+        await DialogService.OpenAsync<ProductDetail>($"Create new Product",
+            new Dictionary<string, object>(),
             new DialogOptions() { Width = "fit-content", Height = "fit-content", Resizable = true, Draggable = true });
+        
     }
 
 }
