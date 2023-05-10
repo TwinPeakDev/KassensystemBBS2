@@ -14,7 +14,38 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.5" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.5" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.5" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Novell.Directory.Ldap" Version="2.2.1" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
       <PackageReference Include="Radzen.Blazor" Version="4.10.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\dark-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\dark.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\default-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\default.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\humanistic-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\humanistic.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\material-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\material.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\software-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\software.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard-base.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\Radzen\standard.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\Upload\pexels-magda-ehlers-1300975.jpg" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\Uploads\" />
     </ItemGroup>
 
 </Project>

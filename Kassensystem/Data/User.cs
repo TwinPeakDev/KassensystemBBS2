@@ -1,4 +1,4 @@
-﻿@*
+/*
 Copyright (C) 2023  
 Elias Stepanik: https://github.com/eliasstepanik
 Olivia Streun: https://github.com/nnuuvv
@@ -15,38 +15,18 @@ Olivia Streun: https://github.com/nnuuvv
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/.
-*@
+*/
 
-@inherits LayoutComponentBase
+using System.ComponentModel.DataAnnotations.Schema;
+using Kassensystem.Data;
 
-<PageTitle>Kassensystem</PageTitle>
-<style>
-    .rz-sidebar { border-right: 0 }
-</style>
+public class User
+{
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
-
-<RadzenLayout Style="height: 100%; grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
-    <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-            <RadzenSidebarToggle Click="@_navMenu.PanelClick" />
-            <RadzenLabel Text="Kassensystem" />
-        </RadzenStack>
-    </RadzenHeader>
-    <NavMenu @ref="_navMenu" />
-    <RadzenBody>
-        <div class="rz-p-4">
-            @Body
-        </div>
-    </RadzenBody>
-</RadzenLayout>
-
-<RadzenDialog/>
-<RadzenNotification/>
-<RadzenContextMenu/>
-<RadzenTooltip/>
-
-
-
-@code {
-    NavMenu _navMenu;
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public List<Sold>? SellEntries { get; set; }
+    public List<Product>? Cart { get; set; }
 }

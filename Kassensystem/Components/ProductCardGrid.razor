@@ -1,0 +1,81 @@
+@*
+Copyright (C) 2023  
+Elias Stepanik: https://github.com/eliasstepanik
+Olivia Streun: https://github.com/nnuuvv
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/.
+*@
+
+
+@using Kassensystem.Data
+@using Kassensystem.Pages
+@inject DialogService DialogService
+
+@if (Products != null || !Products.Any())
+{
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap" >
+        @foreach (var product in Products)
+        {
+            <div onclick="@(() => ProductClicked(product))" >
+                <RadzenCard class="rz-ripple" >
+                    @product.Name
+                    @product.GetImageWidthAndHeight().Item1 width 
+                    @product.GetImageWidthAndHeight().Item2 height
+                    <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{product.GetLocalImageBase64()}")"></RadzenImage>
+                </RadzenCard>
+            </div>
+        }
+    </RadzenStack>
+
+    
+    
+}
+
+
+
+@code {
+    [Parameter]
+    public IEnumerable<Product>? Products { get; set; }
+
+    [Parameter]
+    public InteractionState State { get; set; } = InteractionState.Edit;
+
+    public enum InteractionState
+    {
+        Edit, 
+        AddToCart,
+    }
+
+    [Parameter]
+    public EventCallback<Product> ProductToCart { get; set; }
+    
+
+
+    async Task ProductClicked(Product product)
+    {
+        switch (State)
+        {
+            case InteractionState.Edit:
+                await DialogService.OpenAsync<ProductDetail>($"Produkt {product.Name} bearbeiten",
+                    new Dictionary<string, object>() { { "CurrentProduct", product } },
+                    new DialogOptions() { Width = "fit-content", Height = "fit-content", Resizable = true, Draggable = true });
+                break;
+                
+            case InteractionState.AddToCart:
+                await ProductToCart.InvokeAsync(product);
+                break;
+
+        }
+    }
+}

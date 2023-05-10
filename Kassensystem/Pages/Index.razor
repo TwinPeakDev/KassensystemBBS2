@@ -1,12 +1,104 @@
-﻿@page "/"
+﻿@*
+Copyright (C) 2023  
+Elias Stepanik: https://github.com/eliasstepanik
+Olivia Streun: https://github.com/nnuuvv
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/.
+*@
+
+@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@using Kassensystem.Data;
+@inject NavigationManager Navigation
+
+@implements IAsyncDisposable
+
+
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="form-group">
+    <label>
+        User:
+        <RadzenTextBox @bind-Value=@_userInput TValue="string" />
+    </label>
+</div>
+<div class="form-group">
+    <label>
+        Message:
+        <RadzenTextBox @bind-Value=@_messageInput TValue="string" size="50" />
+    </label>
+</div>
+<button @onclick="Send" disabled="@(!IsConnected)">Send</button>
 
-Welcome to your new app.
+<hr>
 
-<RadzenButton Text="@text"></RadzenButton>
+<ul id="messagesList">
+    @foreach (var message in _messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
 @code {
-  string text = "Hi";
+    private HubConnection? _hubConnection;
+    private List<string> _messages = new List<string>();
+    private string? _userInput = "TestUser";
+    private string? _messageInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
+            .Build();
+
+        _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user}: {message}";
+            _messages.Add(encodedMsg);
+            InvokeAsync(StateHasChanged);
+        });
+
+        
+
+        await _hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.SendAsync("SendMessage", _userInput, _messageInput);
+        }
+    }
+
+    private async Task SavePayment(Sold sold)
+    {
+        if(_hubConnection is not null)
+        {
+            await _hubConnection.SendAsync("SavePayment", sold);
+        }
+    }
+
+    private bool IsConnected =>
+        _hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
 }

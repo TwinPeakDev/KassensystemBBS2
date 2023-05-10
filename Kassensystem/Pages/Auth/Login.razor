@@ -17,36 +17,33 @@ Olivia Streun: https://github.com/nnuuvv
     along with this program.  If not, see https://www.gnu.org/licenses/.
 *@
 
-@inherits LayoutComponentBase
+@page "/login"
+@page "/login/{ErrorMessage}"
+@inject NavigationManager NavManager
+@attribute [AllowAnonymous]
 
-<PageTitle>Kassensystem</PageTitle>
-<style>
-    .rz-sidebar { border-right: 0 }
-</style>
+<h3>Login</h3>
 
+@if (ErrorMessage != null)
+{
+    <div class="text-danger">@ErrorMessage</div>
+}
 
-<RadzenLayout Style="height: 100%; grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
-    <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-            <RadzenSidebarToggle Click="@_navMenu.PanelClick" />
-            <RadzenLabel Text="Kassensystem" />
-        </RadzenStack>
-    </RadzenHeader>
-    <NavMenu @ref="_navMenu" />
-    <RadzenBody>
-        <div class="rz-p-4">
-            @Body
-        </div>
-    </RadzenBody>
-</RadzenLayout>
-
-<RadzenDialog/>
-<RadzenNotification/>
-<RadzenContextMenu/>
-<RadzenTooltip/>
-
+<form method="post" action="/account/login">
+    <div class="form-group">
+        <label>Username:</label>
+        <input type="text" name="username" class="form-control col-sm-6 col-md-4" />
+    </div>
+    <div class="form-group">
+        <label>Password:</label>
+        <input type="password" name="password" class="form-control col-sm-6 col-md-4" />
+    </div>
+    <button class="btn btn-primary">Log in</button>
+</form>
 
 
 @code {
-    NavMenu _navMenu;
+    [Parameter] public string? ErrorMessage { get; set; }
+
+
 }

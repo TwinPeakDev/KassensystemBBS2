@@ -1,0 +1,105 @@
+@*
+Copyright (C) 2023  
+Elias Stepanik: https://github.com/eliasstepanik
+Olivia Streun: https://github.com/nnuuvv
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/.
+*@
+
+@page "/ProductDetail"
+@using Kassensystem.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject DialogService DialogService
+@inject ILogger<ProductDetail> Logger
+
+@implements IAsyncDisposable
+
+
+
+
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
+    <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
+    <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    @if (CurrentProduct is {ImageName: not null })
+    {
+        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBase64()}")"></RadzenImage>
+    }
+    <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
+
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(CurrentProduct != null && !CurrentProduct.ReadyToSave())" ></RadzenButton>
+</RadzenStack>
+    
+
+
+
+@code {
+    [Parameter]
+    public Product? CurrentProduct { get; set; }
+    
+    private HubConnection? _hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        CurrentProduct ??= new Product();
+        
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
+            .Build();
+
+        await _hubConnection.StartAsync();
+        
+
+    }
+
+    private Task OnUploadImage(UploadProgressArgs args)
+    {
+        Logger.LogDebug("{ArgsProgress}% \'{Name}\' / {ArgsLoaded} of {ArgsTotal} bytes", args.Progress, args.Files.ToList()[0].Name, args.Loaded, args.Total);
+
+        if (args.Progress == 100)
+        {
+            if (CurrentProduct != null) CurrentProduct.ImageName = args.Files.FirstOrDefault()?.Name.Replace(" ", "") ?? DateTime.Now.ToLongDateString().GetHashCode().ToString();
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
+    }
+
+
+    private async Task Save()
+    {
+        try
+        {
+            await _hubConnection.SendAsync("SaveProduct", CurrentProduct);
+            Logger.LogInformation("Product ID:{CurrentProductId} Name:{CurrentProductName} was saved.", CurrentProduct.Id, CurrentProduct.Name);
+        }
+        catch (Exception e)
+        {
+            if (CurrentProduct != null) Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct.Id} Name:{CurrentProduct.Name}");
+        }
+        await DisposeAsync();
+        DialogService.Close();
+        
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+
+}
