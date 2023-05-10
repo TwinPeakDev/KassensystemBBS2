@@ -17,6 +17,16 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "httpSilent": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5134",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionString": "Server=localhost;Database=db;Uid=root;Pwd=G7P!Mub@Y7ZwJu2Fm^ea"
+      }
+    },
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,

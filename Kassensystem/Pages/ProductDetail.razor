@@ -22,7 +22,7 @@ Olivia Streun: https://github.com/nnuuvv
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
 @inject DialogService DialogService
-
+@inject ILogger<ProductDetail> Logger
 
 @implements IAsyncDisposable
 
@@ -30,13 +30,15 @@ Olivia Streun: https://github.com/nnuuvv
 
 
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
-    <RadzenTextBox @bind-Value="@CurProduct.Name" Placeholder="Name"></RadzenTextBox>
-    <RadzenNumeric @bind-Value="CurProduct.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (CurProduct.Image != null)
+    <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
+    <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
+    @if (CurrentProduct is {ImageName: not null })
     {
-        <RadzenImage Path="@CurProduct.Image"></RadzenImage>
+        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBase64()}")"></RadzenImage>
     }
-    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(!CurProduct.ReadyToSave())" ></RadzenButton>
+    <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
+
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Speichern" Click="Save" Disabled="@(CurrentProduct != null && !CurrentProduct.ReadyToSave())" ></RadzenButton>
 </RadzenStack>
     
 
@@ -44,31 +46,49 @@ Olivia Streun: https://github.com/nnuuvv
 
 @code {
     [Parameter]
-    public Product? CurProduct { get; set; }
+    public Product? CurrentProduct { get; set; }
     
-    private HubConnection? hubConnection;
-
+    private HubConnection? _hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         
-        CurProduct ??= new Product();
+        CurrentProduct ??= new Product();
         
-        hubConnection = new HubConnectionBuilder()
+        _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
             .Build();
 
-        await hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
         
 
+    }
+
+    private Task OnUploadImage(UploadProgressArgs args)
+    {
+        Logger.LogDebug("{ArgsProgress}% \'{Name}\' / {ArgsLoaded} of {ArgsTotal} bytes", args.Progress, args.Files.ToList()[0].Name, args.Loaded, args.Total);
+
+        if (args.Progress == 100)
+        {
+            if (CurrentProduct != null) CurrentProduct.ImageName = args.Files.FirstOrDefault()?.Name.Replace(" ", "") ?? DateTime.Now.ToLongDateString().GetHashCode().ToString();
+            InvokeAsync(StateHasChanged);
+        }
+        return Task.CompletedTask;
     }
 
 
     private async Task Save()
     {
-        if(hubConnection is not null)
-            await hubConnection.SendAsync("SaveProduct", CurProduct);
+        try
+        {
+            await _hubConnection.SendAsync("SaveProduct", CurrentProduct);
+            Logger.LogInformation("Product ID:{CurrentProductId} Name:{CurrentProductName} was saved.", CurrentProduct.Id, CurrentProduct.Name);
+        }
+        catch (Exception e)
+        {
+            if (CurrentProduct != null) Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct.Id} Name:{CurrentProduct.Name}");
+        }
         await DisposeAsync();
         DialogService.Close();
         
@@ -76,15 +96,10 @@ Olivia Streun: https://github.com/nnuuvv
 
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection is not null)
+        if (_hubConnection is not null)
         {
-            await hubConnection.DisposeAsync();
+            await _hubConnection.DisposeAsync();
         }
     }
 
-    void OnComplete(UploadCompleteEventArgs args)
-    {
-        Console.WriteLine(args.RawResponse);
-    }
-    
 }

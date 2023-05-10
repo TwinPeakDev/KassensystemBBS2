@@ -20,17 +20,11 @@ Olivia Streun: https://github.com/nnuuvv
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Kassensystem.Data;
+namespace Kassensystem.Data.Database;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-
-
-
-    }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +35,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasMany(u => u.SellEntries)
             .WithOne(e => e.SoldBy);
+        
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Cart)
+            .WithOne(e => e.User);
 
     }
 

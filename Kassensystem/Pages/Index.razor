@@ -19,11 +19,8 @@ Olivia Streun: https://github.com/nnuuvv
 
 @page "/"
 @using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.EntityFrameworkCore;
 @using Kassensystem.Data;
-@using Kassensystem.Hubs;
 @inject NavigationManager Navigation
-@inject IDbContextFactory<ApplicationDbContext> _contextFactory;
 
 @implements IAsyncDisposable
 
@@ -34,13 +31,13 @@ Olivia Streun: https://github.com/nnuuvv
 <div class="form-group">
     <label>
         User:
-        <RadzenTextBox @bind-Value=@userInput TValue="string" />
+        <RadzenTextBox @bind-Value=@_userInput TValue="string" />
     </label>
 </div>
 <div class="form-group">
     <label>
         Message:
-        <RadzenTextBox @bind-Value=@messageInput TValue="string" size="50" />
+        <RadzenTextBox @bind-Value=@_messageInput TValue="string" size="50" />
     </label>
 </div>
 <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
@@ -48,60 +45,60 @@ Olivia Streun: https://github.com/nnuuvv
 <hr>
 
 <ul id="messagesList">
-    @foreach (var message in messages)
+    @foreach (var message in _messages)
     {
         <li>@message</li>
     }
 </ul>
 
 @code {
-    private HubConnection? hubConnection;
-    private List<string> messages = new List<string>();
-    private string? userInput = "TestUser";
-    private string? messageInput;
+    private HubConnection? _hubConnection;
+    private List<string> _messages = new List<string>();
+    private string? _userInput = "TestUser";
+    private string? _messageInput;
 
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
+        _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/datahub"))
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
         {
             var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
+            _messages.Add(encodedMsg);
             InvokeAsync(StateHasChanged);
         });
 
         
 
-        await hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
     }
 
     private async Task Send()
     {
-        if (hubConnection is not null)
+        if (_hubConnection is not null)
         {
-            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+            await _hubConnection.SendAsync("SendMessage", _userInput, _messageInput);
         }
     }
 
     private async Task SavePayment(Sold sold)
     {
-        if(hubConnection is not null)
+        if(_hubConnection is not null)
         {
-            await hubConnection.SendAsync("SavePayment", sold);
+            await _hubConnection.SendAsync("SavePayment", sold);
         }
     }
 
-    public bool IsConnected =>
-        hubConnection?.State == HubConnectionState.Connected;
+    private bool IsConnected =>
+        _hubConnection?.State == HubConnectionState.Connected;
 
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection is not null)
+        if (_hubConnection is not null)
         {
-            await hubConnection.DisposeAsync();
+            await _hubConnection.DisposeAsync();
         }
     }
 }
