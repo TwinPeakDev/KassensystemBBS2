@@ -10,9 +10,10 @@
             <div onclick="@(() => ProductClicked(product))" >
                 <RadzenCard class="rz-ripple" >
                     @product.Name
-                    @product.GetImageWidthAndHeight().Item1 width 
-                    @product.GetImageWidthAndHeight().Item2 height
-                    <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{product.GetLocalImageBase64()}")"></RadzenImage>
+                    @product.Image?.WidthAndHeight.Item1 width 
+                    @product.Image?.WidthAndHeight.Item2 height
+                    @product.Image?.AspectRatio.Item1 : @product.Image?.AspectRatio.Item2
+                    <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{product.Image?.GetLocalImageBase64()}")"></RadzenImage>
                 </RadzenCard>
             </div>
         }

@@ -41,10 +41,12 @@ public class UploadController : Controller
             }
 
             var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
-            using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+            await using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
             {
                 await file.CopyToAsync(fileStream);
-                fileStream.Close();
+                fileStream.Flush();
+                await fileStream.DisposeAsync();
+                fileStream.SafeFileHandle.Dispose();
             }
         }
     }

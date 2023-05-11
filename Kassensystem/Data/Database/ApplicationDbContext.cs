@@ -21,6 +21,10 @@ public class ApplicationDbContext : DbContext
             .HasMany(u => u.Cart)
             .WithOne(e => e.User);
 
+        modelBuilder.Entity<Product>()
+            .OwnsOne(x => x.Image);
+
+
     }
 
 
