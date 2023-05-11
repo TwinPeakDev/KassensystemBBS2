@@ -1,21 +1,45 @@
-﻿services:
-  kassensystem:
+﻿version: '2.1'
+
+volumes:
+  wwwroot:
+  keys:
+  db:
+networks:
+  TestNetwork:
+    external: true
+    
+services:
+  develop:
     image: kassensystem
     build:
       context: .
       dockerfile: Dockerfile
-      
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - ConnectionString="Server=mysql-db-1;Database=TestDB;Uid=root;Pwd=G7P!Mub@Y7ZwJu2Fm^ea;"
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - wwwroot:/app/wwwroot
+      - keys:/root/.aspnet
+    restart: unless-stopped
+    ports:
+      # <Port exposed> :< MySQL Port running inside container>
+      - 8081:80
+    networks:
+      - TestNetwork
+    depends_on:
+      - db
   db:
     image: mysql:8.0
+    cap_add:
+      - SYS_NICE
     environment:
       MYSQL_DATABASE: 'db'
-      # So you don't have to use root, but you can if you like
-      MYSQL_USER: 'User'
-      # You can use whatever password you like
-      MYSQL_PASSWORD: 'V@L48@tmpVtQ9rT1JWtB'
-      # Password for root access
       MYSQL_ROOT_PASSWORD: 'G7P!Mub@Y7ZwJu2Fm^ea'
     ports:
       # <Port exposed> :< MySQL Port running inside container>
       - 3306:3306
-    
+    volumes:
+      - db:/var/lib/mysql

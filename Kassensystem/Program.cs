@@ -50,13 +50,14 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var inMemory = false;
+var connectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "";
+bool inMemory = connectionString.Equals("");
 
 if(inMemory)
     builder.Services.AddDbContextFactory<DataContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 else
 {
-    var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+    
     builder.Services.AddDbContextFactory<DataContext>(options => options.UseMySql(connectionString, ServerVersion.Create(new Version(8,0), ServerType.MySql)));
 }
 
@@ -88,7 +89,7 @@ var dbFactory = app.Services.GetRequiredService<IDbContextFactory<DataContext>>(
 if (inMemory)
 {
     
-    var db = await dbFactory.CreateDbContextAsync();
+    /*var db = await dbFactory.CreateDbContextAsync();
     var rd = new Random();
 
     var products = new List<Product>();
@@ -103,7 +104,7 @@ if (inMemory)
     }
 
     await db.Products.AddRangeAsync(products);
-    await db.SaveChangesAsync();
+    await db.SaveChangesAsync();*/
 
 }
 else
