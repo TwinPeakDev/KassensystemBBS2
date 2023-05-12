@@ -7,7 +7,7 @@
 
 
 <RadzenLayout Style="height: 100%; grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
-    <RadzenHeader>
+    <RadzenHeader Style="position: sticky; top: 0" >
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
             <RadzenSidebarToggle Click="@_navMenu.PanelClick" />
             <RadzenLabel Text="Kassensystem" />

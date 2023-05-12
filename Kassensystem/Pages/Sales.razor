@@ -30,18 +30,16 @@ Olivia Streun: https://github.com/nnuuvv
 
 @implements IAsyncDisposable
 
-
-
 <h3>Verkaufen</h3>
 
 @if (_products == null || !_products.Any())
 {
     <NavLink href="/produkte" > Es sind noch keine Produkte angelegt.</NavLink>
-    
 }
 
-
 <ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.AddToCart" ProductToCart="ProductToCart"  ></ProductCardGrid>
+
+
 
 
 
