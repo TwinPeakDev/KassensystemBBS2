@@ -3,7 +3,9 @@
 namespace Kassensystem.Controllers;
 
 [DisableRequestSizeLimit]
-public class UploadController : Controller
+[ApiController]
+[Route("[controller]")]
+public class UploadController : ControllerBase
 {
 
     private readonly IWebHostEnvironment _environment;
@@ -15,7 +17,7 @@ public class UploadController : Controller
         _logger = logger;
     }
 
-    [HttpPost("upload/single")]
+    [HttpPost("single")]
     public IActionResult Single(IFormFile file)
     {
         try
