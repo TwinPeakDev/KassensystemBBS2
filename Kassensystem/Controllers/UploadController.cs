@@ -18,36 +18,41 @@ public class UploadController : ControllerBase
     }
 
     [HttpPost("single")]
-    public IActionResult Single(IFormFile file)
+    public async Task<IActionResult> Single(IFormFile file)
     {
-        try
-        {
-            UploadFile(file);
-            return StatusCode(200);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return await UploadFile(file);
     }
 
-    public async Task UploadFile(IFormFile file)
+    public async Task<ObjectResult> UploadFile(IFormFile file)
     {
         if (file != null && file.Length > 0)
         {
-            var imagePath = @"\Uploads";
-            var uploadPath = _environment.WebRootPath + imagePath;
-            if (!Directory.Exists(uploadPath))
+            try
             {
-                Directory.CreateDirectory(uploadPath);
-            }
+                var imagePath = @"\Uploads";
+                var uploadPath = _environment.WebRootPath + imagePath;
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
 
-            var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
-            using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
+                using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                {
+                    await file.CopyToAsync(fileStream);
+                    fileStream.Close();
+                }
+            }
+            catch (Exception e)
             {
-                await file.CopyToAsync(fileStream);
-                fileStream.Close();
+                return StatusCode(500, e.Message);
             }
         }
+        else
+        {
+            return StatusCode(416, "File not There");
+        }
+
+        return StatusCode(400, "");
     }
 }
