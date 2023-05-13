@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "-" ]
+    branches: [ "develop" ]
 
 jobs:
 
@@ -41,15 +41,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
 
-      - name: Read Request file contents
-        id: read_file
-        uses: andstor/file-reader-action@v1
-        with:
-          path: "stackRequest.json"
-      - name: Update Portainer Stack
-        uses: satak/webrequest-action@master
-        with:
-          url: https://portainer.nuv.systems/api/stacks/42?endpointId=2
-          method: PUT
-          payload: "${{ steps.read_file.outputs.contents }}"
-          headers: '{"Content-Type": "application/json","Accept": "application/json", "X-API-Key": "${{ secrets.PORTAINER_KEY }}"}'
+#      - name: Read Request file contents
+#        id: read_file
+#        uses: andstor/file-reader-action@v1
+#        with:
+#          path: "stackRequest.json"
+#      - name: Update Portainer Stack
+#        uses: satak/webrequest-action@master
+#        with:
+#          url: https://portainer.nuv.systems/api/stacks/42?endpointId=2
+#          method: PUT
+#          payload: "${{ steps.read_file.outputs.contents }}"
+#          headers: '{"Content-Type": "application/json","Accept": "application/json", "X-API-Key": "${{ secrets.PORTAINER_KEY }}"}'
