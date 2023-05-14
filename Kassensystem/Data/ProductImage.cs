@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace Kassensystem.Data;
 
@@ -8,6 +11,7 @@ public class ProductImage
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+
     public ProductImage(string imageName)
     {
         ImageName = imageName;
@@ -33,11 +37,17 @@ public class ProductImage
         CalculateWidthAndHeight();
         CalculateRatio();
     }
-    
     public string GetLocalImageBase64()
     {
-        var imageFolder = @"\wwwroot\Uploads";
-        var uploadPath = Environment.CurrentDirectory + imageFolder;
+        
+        var imagePath = @"Uploads";
+        string uploadPath;
+        //if(true)
+        if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != null && Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")!.Equals("true"))
+            uploadPath = Path.Combine(@"wwwroot", imagePath);
+        else 
+            uploadPath = Path.Combine(Environment.GetEnvironmentVariable("WWWROOT")!, imagePath);
+
         if (ImageName == null) return "";
         
         var fullPath = Path.Combine(uploadPath,  ImageName);
@@ -45,8 +55,7 @@ public class ProductImage
         return !File.Exists(fullPath) ? "" : Convert.ToBase64String(File.ReadAllBytes(fullPath));
     }
 
-
-    private void CalculateWidthAndHeight()
+    private async void CalculateWidthAndHeight()
     {
         var imageBase64 = GetLocalImageBase64();
 
