@@ -4,9 +4,6 @@ volumes:
   wwwroot:
   keys:
   db:
-networks:
-  TestNetwork:
-    external: true
     
 services:
   develop:
@@ -18,7 +15,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - ConnectionString="Server=mysql-db-1;Database=TestDB;Uid=root;Pwd=G7P!Mub@Y7ZwJu2Fm^ea;"
+      #- ConnectionString="Server=db;Database=TestDB;Uid=root;Pwd=G7P!Mub@Y7ZwJu2Fm^ea;"
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - wwwroot:/app/wwwroot
@@ -26,9 +23,9 @@ services:
     restart: unless-stopped
     ports:
       # <Port exposed> :< MySQL Port running inside container>
-      - 8081:80
-    networks:
-      - TestNetwork
+      - "8082:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
   db:
@@ -38,8 +35,5 @@ services:
     environment:
       MYSQL_DATABASE: 'db'
       MYSQL_ROOT_PASSWORD: 'G7P!Mub@Y7ZwJu2Fm^ea'
-    ports:
-      # <Port exposed> :< MySQL Port running inside container>
-      - 3306:3306
     volumes:
       - db:/var/lib/mysql

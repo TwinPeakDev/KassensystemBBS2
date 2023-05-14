@@ -41,10 +41,16 @@ public class Product
         return Name != null;
     }
     
-    public string GetLocalImageBase64()
+    public string GetLocalImageBase64(IWebHostEnvironment environment)
     {
-        var imageFolder = @"\wwwroot\Uploads";
-        var uploadPath = Environment.CurrentDirectory + imageFolder;
+        var imagePath = @"Uploads";
+        string uploadPath;
+        //if(true)
+        if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != null && Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")!.Equals("true"))
+            uploadPath = Path.Combine(@"wwwroot", imagePath);
+        else
+            uploadPath = Path.Combine(environment.WebRootPath, imagePath);
+
         if (ImageName == null) return "";
         
         var fullPath = Path.Combine(uploadPath,  ImageName);
@@ -53,9 +59,9 @@ public class Product
     }
 
 
-    public Tuple<int, int> GetImageWidthAndHeight()
+    public Tuple<int, int> GetImageWidthAndHeight(IWebHostEnvironment environment)
     {
-        byte[] imageBytes = Convert.FromBase64String(GetLocalImageBase64());
+        byte[] imageBytes = Convert.FromBase64String(GetLocalImageBase64(environment));
         
         var ms = new MemoryStream(imageBytes);
         

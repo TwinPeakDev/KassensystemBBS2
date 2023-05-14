@@ -22,15 +22,21 @@ public class UploadController : ControllerBase
     {
         return await UploadFile(file);
     }
-
-    public async Task<ObjectResult> UploadFile(IFormFile file)
+    
+    public async Task<ObjectResult> UploadFile(IFormFile? file)
     {
         if (file != null && file.Length > 0)
         {
             try
             {
-                var imagePath = @"\Uploads";
-                var uploadPath = _environment.WebRootPath + imagePath;
+                var imagePath = @"Uploads";
+                string uploadPath;
+                //if(true)
+                if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != null && Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")!.Equals("true"))
+                    uploadPath = Path.Combine(@"wwwroot", imagePath);
+                else
+                    uploadPath = Path.Combine(_environment.WebRootPath, imagePath);
+                
                 if (!Directory.Exists(uploadPath))
                 {
                     Directory.CreateDirectory(uploadPath);

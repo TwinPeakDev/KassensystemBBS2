@@ -21,6 +21,7 @@ Olivia Streun: https://github.com/nnuuvv
 @using Kassensystem.Data
 @using Kassensystem.Pages
 @inject DialogService DialogService
+@inject IWebHostEnvironment Environment
 
 @if (Products != null || !Products.Any())
 {
@@ -30,9 +31,9 @@ Olivia Streun: https://github.com/nnuuvv
             <div onclick="@(() => ProductClicked(product))" >
                 <RadzenCard class="rz-ripple" >
                     @product.Name
-                    @product.GetImageWidthAndHeight().Item1 width 
-                    @product.GetImageWidthAndHeight().Item2 height
-                    <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{product.GetLocalImageBase64()}")"></RadzenImage>
+                    @product.GetImageWidthAndHeight(Environment).Item1 width 
+                    @product.GetImageWidthAndHeight(Environment).Item2 height
+                    <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{product.GetLocalImageBase64(Environment)}")"></RadzenImage>
                 </RadzenCard>
             </div>
         }

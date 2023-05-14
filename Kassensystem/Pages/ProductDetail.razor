@@ -23,6 +23,7 @@ Olivia Streun: https://github.com/nnuuvv
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject ILogger<ProductDetail> Logger
+@inject IWebHostEnvironment Environment
 
 @implements IAsyncDisposable
 
@@ -34,7 +35,7 @@ Olivia Streun: https://github.com/nnuuvv
     <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
     @if (CurrentProduct is {ImageName: not null })
     {
-        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBase64()}")"></RadzenImage>
+        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBase64(Environment)}")"></RadzenImage>
     }
     <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
 
@@ -83,11 +84,11 @@ Olivia Streun: https://github.com/nnuuvv
         try
         {
             await _hubConnection.SendAsync("SaveProduct", CurrentProduct);
-            Logger.LogInformation("Product ID:{CurrentProductId} Name:{CurrentProductName} was saved.", CurrentProduct.Id, CurrentProduct.Name);
+            Logger.LogInformation("Product ID:{CurrentProductId} Name:{CurrentProductName} was saved", CurrentProduct!.Id, CurrentProduct.Name);
         }
         catch (Exception e)
         {
-            if (CurrentProduct != null) Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct.Id} Name:{CurrentProduct.Name}");
+            Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct!.Id} Name:{CurrentProduct.Name}");
         }
         await DisposeAsync();
         DialogService.Close();
