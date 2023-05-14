@@ -1,0 +1,39 @@
+﻿version: '2.1'
+
+volumes:
+  wwwroot:
+  keys:
+  db:
+    
+services:
+  develop:
+    image: kassensystem
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      #- ConnectionString="Server=db;Database=TestDB;Uid=root;Pwd=G7P!Mub@Y7ZwJu2Fm^ea;"
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - wwwroot:/app/wwwroot
+      - keys:/root/.aspnet
+    restart: unless-stopped
+    ports:
+      # <Port exposed> :< MySQL Port running inside container>
+      - "8082:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_ROOT_PASSWORD: 'G7P!Mub@Y7ZwJu2Fm^ea'
+    volumes:
+      - db:/var/lib/mysql

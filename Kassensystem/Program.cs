@@ -1,9 +1,29 @@
+/*
+Copyright (C) 2023  
+Elias Stepanik: https://github.com/eliasstepanik
+Olivia Streun: https://github.com/nnuuvv
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/.
+*/
+
 using Kassensystem.Data;
 using Kassensystem.Data.Database;
 using Kassensystem.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,14 +50,15 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var inMemory = true;
+var connectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "";
+bool inMemory = connectionString.Equals("");
 
 if(inMemory)
-    builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseInMemoryDatabase("TestDatabase"));
+    builder.Services.AddDbContextFactory<DataContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 else
 {
-    var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-    builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    
+    builder.Services.AddDbContextFactory<DataContext>(options => options.UseMySql(connectionString, ServerVersion.Create(new Version(8,0), ServerType.MySql)));
 }
 
 
@@ -64,11 +85,11 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapHub<DataHub>("/datahub");
 app.MapFallbackToPage("/_Host");
-
+var dbFactory = app.Services.GetRequiredService<IDbContextFactory<DataContext>>();
 if (inMemory)
 {
-    var dbFactory = app.Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
-    var db = await dbFactory.CreateDbContextAsync();
+    
+    /*var db = await dbFactory.CreateDbContextAsync();
     var rd = new Random();
 
     var products = new List<Product>();
@@ -83,8 +104,13 @@ if (inMemory)
     }
 
     await db.Products.AddRangeAsync(products);
-    await db.SaveChangesAsync();
+    await db.SaveChangesAsync();*/
 
+}
+else
+{
+    var db = await dbFactory.CreateDbContextAsync();
+    await db.Database.MigrateAsync();
 }
 
 app.Run();

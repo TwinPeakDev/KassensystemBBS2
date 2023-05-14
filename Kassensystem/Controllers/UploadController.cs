@@ -3,7 +3,9 @@
 namespace Kassensystem.Controllers;
 
 [DisableRequestSizeLimit]
-public class UploadController : Controller
+[ApiController]
+[Route("[controller]")]
+public class UploadController : ControllerBase
 {
 
     private readonly IWebHostEnvironment _environment;
@@ -15,39 +17,51 @@ public class UploadController : Controller
         _logger = logger;
     }
 
-    [HttpPost("upload/single")]
-    public IActionResult Single(IFormFile file)
+    [HttpPost("single")]
+    public async Task<IActionResult> Single(IFormFile file)
     {
-        try
-        {
-            UploadFile(file);
-            return StatusCode(200);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return await UploadFile(file);
     }
-
-    public async Task UploadFile(IFormFile file)
+    
+    public async Task<ObjectResult> UploadFile(IFormFile? file)
     {
         if (file != null && file.Length > 0)
         {
-            var imagePath = @"\Uploads";
-            var uploadPath = _environment.WebRootPath + imagePath;
-            if (!Directory.Exists(uploadPath))
+            try
             {
-                Directory.CreateDirectory(uploadPath);
-            }
+                var imagePath = @"Uploads";
+                string uploadPath;
+                //if(true)
+                if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != null &&
+                    Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")!.Equals("true"))
+                    uploadPath = Path.Combine(@"wwwroot", imagePath);
+                else
+                    uploadPath = Path.Combine(_environment.WebRootPath, imagePath);
 
-            var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
-            await using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
+                await using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                {
+                    await file.CopyToAsync(fileStream);
+                    fileStream.Flush();
+                    await fileStream.DisposeAsync();
+                    fileStream.SafeFileHandle.Dispose();
+                }
+            }
+            catch (Exception e)
             {
-                await file.CopyToAsync(fileStream);
-                fileStream.Flush();
-                await fileStream.DisposeAsync();
-                fileStream.SafeFileHandle.Dispose();
+                return StatusCode(500, e.Message);
             }
         }
+        else
+        {
+            return StatusCode(416, "File not There");
+        }
+
+        return StatusCode(400, "");
     }
 }
