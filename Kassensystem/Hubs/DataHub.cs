@@ -46,7 +46,8 @@ public class DataHub : Hub
     {
         var context = await _contextFactory.CreateDbContextAsync();
 
-        await context.SellEntries.AddAsync(sold);
+        context.SellEntries.Update(sold);
+        
         await context.SaveChangesAsync();
 
         await context.DisposeAsync();
@@ -58,7 +59,8 @@ public class DataHub : Hub
     {
         var context = await _contextFactory.CreateDbContextAsync();
 
-        context.Products.Update(product);        
+        context.Update(product);       
+        
         await context.SaveChangesAsync();
 
         await context.DisposeAsync();
@@ -75,29 +77,5 @@ public class DataHub : Hub
         await context.DisposeAsync();
         await Clients.All.SendAsync("UpdateProducts");
     }
-
-    public async Task AddCardItem(User user,Product product)
-    {
-        var context = await _contextFactory.CreateDbContextAsync();
-        if (user.Cart != null) user.Cart.Add(product);
-
-        context.Update(user);
-        await context.SaveChangesAsync();
-        
-        await context.DisposeAsync();
-        await Clients.All.SendAsync("UpdateCard");
-    }
-    
-    public async Task RemoveCardItem(User user,Product product)
-    {
-        var context = await _contextFactory.CreateDbContextAsync();
-        if (user.Cart != null) user.Cart.Remove(product);
-        context.Update(user);
-        await context.SaveChangesAsync();
-        
-        await context.DisposeAsync();
-        await Clients.All.SendAsync("UpdateCard");
-    }
-
 
 }

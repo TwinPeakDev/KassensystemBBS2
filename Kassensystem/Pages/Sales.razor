@@ -30,18 +30,16 @@ Olivia Streun: https://github.com/nnuuvv
 
 @implements IAsyncDisposable
 
-
-
 <h3>Verkaufen</h3>
 
 @if (_products == null || !_products.Any())
 {
     <NavLink href="/produkte" > Es sind noch keine Produkte angelegt.</NavLink>
-    
 }
 
-
 <ProductCardGrid Products="_products" State="ProductCardGrid.InteractionState.AddToCart" ProductToCart="ProductToCart"  ></ProductCardGrid>
+
+
 
 
 
@@ -86,7 +84,7 @@ Olivia Streun: https://github.com/nnuuvv
     private async Task UpdateProductList()
     {
         var context = await _contextFactory.CreateDbContextAsync();
-        _products = context.Products.ToList();
+        _products = context.Products.Include(x => x.Image).ToList();
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
     }

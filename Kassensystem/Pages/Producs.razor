@@ -76,7 +76,7 @@ Olivia Streun: https://github.com/nnuuvv
     private async Task UpdateProductList()
     {
         var context = await ContextFactory.CreateDbContextAsync();
-        _products = context.Products.ToList();
+        _products = context.Products.Include(x => x.Image).ToList();
         await context.DisposeAsync();
         await InvokeAsync(StateHasChanged);
     }

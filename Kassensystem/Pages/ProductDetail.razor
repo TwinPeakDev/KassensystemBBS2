@@ -23,7 +23,7 @@ Olivia Streun: https://github.com/nnuuvv
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject ILogger<ProductDetail> Logger
-@inject IWebHostEnvironment Environment
+@inject IWebHostEnvironment WebHostEnvironment
 
 @implements IAsyncDisposable
 
@@ -33,9 +33,9 @@ Olivia Streun: https://github.com/nnuuvv
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" >
     <RadzenTextBox @bind-Value="@CurrentProduct!.Name" Placeholder="Name"></RadzenTextBox>
     <RadzenNumeric @bind-Value="@CurrentProduct!.PriceEuro" Placeholder="Preis €" Min="0" TValue="double"></RadzenNumeric>
-    @if (CurrentProduct is {ImageName: not null })
+    @if (CurrentProduct is {Image: not null })
     {
-        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.GetLocalImageBase64(Environment)}")"></RadzenImage>
+        <RadzenImage Style="height: 20vh; width: 20vw" Path="@($"data:image/*;base64,{CurrentProduct.Image.GetLocalImageBase64()}")"></RadzenImage>
     }
     <RadzenUpload Multiple="false" Accept="jpg" Url="upload/single" Progress="@(OnUploadImage)" class="w-100"/>
 
@@ -72,7 +72,17 @@ Olivia Streun: https://github.com/nnuuvv
 
         if (args.Progress == 100)
         {
-            if (CurrentProduct != null) CurrentProduct.ImageName = args.Files.FirstOrDefault()?.Name.Replace(" ", "") ?? DateTime.Now.ToLongDateString().GetHashCode().ToString();
+            if (CurrentProduct != null)
+            {
+                if (CurrentProduct.Image == null)
+                {
+                    CurrentProduct.Image = new ProductImage(args.Files.FirstOrDefault()?.Name.Replace(" ", "") ?? DateTime.Now.ToLongDateString().GetHashCode().ToString());
+                }
+                else
+                {
+                    CurrentProduct.Image.ImageName = args.Files.FirstOrDefault()?.Name.Replace(" ", "") ?? DateTime.Now.ToLongDateString().GetHashCode().ToString();
+                }
+            }
             InvokeAsync(StateHasChanged);
         }
         return Task.CompletedTask;
@@ -88,7 +98,7 @@ Olivia Streun: https://github.com/nnuuvv
         }
         catch (Exception e)
         {
-            Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct!.Id} Name:{CurrentProduct.Name}");
+            if (CurrentProduct != null) Logger.LogError(e + $" | while trying to save Product ID:{CurrentProduct.Id} Name:{CurrentProduct.Name}");
         }
         await DisposeAsync();
         DialogService.Close();

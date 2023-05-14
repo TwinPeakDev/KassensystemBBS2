@@ -32,21 +32,24 @@ public class UploadController : ControllerBase
                 var imagePath = @"Uploads";
                 string uploadPath;
                 //if(true)
-                if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != null && Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")!.Equals("true"))
+                if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != null &&
+                    Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")!.Equals("true"))
                     uploadPath = Path.Combine(@"wwwroot", imagePath);
                 else
                     uploadPath = Path.Combine(_environment.WebRootPath, imagePath);
-                
+
                 if (!Directory.Exists(uploadPath))
                 {
                     Directory.CreateDirectory(uploadPath);
                 }
 
                 var fullPath = Path.Combine(uploadPath, file.FileName.Replace(" ", ""));
-                using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                await using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
                 {
                     await file.CopyToAsync(fileStream);
-                    fileStream.Close();
+                    fileStream.Flush();
+                    await fileStream.DisposeAsync();
+                    fileStream.SafeFileHandle.Dispose();
                 }
             }
             catch (Exception e)

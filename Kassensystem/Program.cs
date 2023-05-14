@@ -85,6 +85,10 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapHub<DataHub>("/datahub");
 app.MapFallbackToPage("/_Host");
+
+var webHostEnvironment = app.Services.GetRequiredService<IWebHostEnvironment>();
+Environment.SetEnvironmentVariable("WWWROOT",webHostEnvironment.WebRootPath);
+
 var dbFactory = app.Services.GetRequiredService<IDbContextFactory<DataContext>>();
 if (inMemory)
 {

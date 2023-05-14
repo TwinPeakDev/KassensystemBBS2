@@ -18364,7 +18364,7 @@ button.rz-colorpicker-trigger .rz-fileupload-row .rz-paginator-element .rz-icon-
 
 .rz-layout {
   height: 100vh;
-  overflow: hidden;
+  overflow: unset; /* Changed from hidden to unset to allow the header to stick to the top  */
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr auto;
@@ -18373,7 +18373,7 @@ button.rz-colorpicker-trigger .rz-fileupload-row .rz-paginator-element .rz-icon-
 
 .rz-layout .rz-body {
   grid-area: rz-body;
-  overflow: auto;
+  overflow: unset; 
 }
 
 .rz-layout .rz-sidebar {
