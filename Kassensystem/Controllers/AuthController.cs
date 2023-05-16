@@ -1,23 +1,4 @@
-﻿/*
-Copyright (C) 2023  
-Elias Stepanik: https://github.com/eliasstepanik
-Olivia Streun: https://github.com/nnuuvv
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see https://www.gnu.org/licenses/.
-*/
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -26,13 +7,17 @@ using Novell.Directory.Ldap;
 
 namespace Kassensystem.Controllers;
 
-public class LoginController : Controller
+[ApiController]
+[Route("[controller]")]
+public class AuthController : ControllerBase
 {
-    public static bool SimpleLdapAuth(string username, string password, out LdapEntry? resultEntity)
+    public static bool LdapAuth(string username, string password, out LdapEntry? resultEntity)
     {
         string Host, BindDN, BindPassword, BaseDC;
         int Port;
         
+        
+        //TODO: Add null Checks
         Host = Environment.GetEnvironmentVariable("LDAP_HOST") ?? "ldap.forumsys.com";
         BindDN = Environment.GetEnvironmentVariable("LDAP_BindDN") ?? "cn=read-only-admin,dc=example,dc=com";
         BindPassword = Environment.GetEnvironmentVariable("LDAP_BindPassword") ?? "password";
@@ -70,12 +55,13 @@ public class LoginController : Controller
             throw e;
         }
     }
-    [HttpPost("/account/login")]
+    
+    [HttpPost("login")]
     public async Task<IActionResult> Login(UserCredentials credentials)
     {
         var User = new { username = credentials.Username, password = credentials.Password };
 
-        var result = SimpleLdapAuth(User.username, User.password,out var resultEntity);
+        var result = LdapAuth(User.username, User.password,out var resultEntity);
 
         if (result == true)
         {
@@ -94,13 +80,14 @@ public class LoginController : Controller
 
         return LocalRedirect("/login/Invalid credentials");
     }
-
-    [HttpGet("/account/logout")]
+    
+    [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return LocalRedirect("/");
     }
+    
 }
 
 public class UserCredentials
