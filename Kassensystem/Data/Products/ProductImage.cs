@@ -23,7 +23,7 @@ using System.Net;
 using RestSharp;
 using RestSharp.Authenticators;
 
-namespace Kassensystem.Data;
+namespace Kassensystem.Data.Products;
 
 public class ProductImage
 {
@@ -48,9 +48,11 @@ public class ProductImage
         }
     }
 
-    public (int, int) WidthAndHeight { get; private set; }
-    public (int, int) AspectRatio { get; private set; }
-
+    public int Width { get; private set; }
+    public int Height { get; private set; }
+    
+    public int AspectRatioX { get; private set; }
+    public int AspectRatioY { get; private set; }
     private void InitializeImage()
     {
         CalculateWidthAndHeight();
@@ -80,35 +82,38 @@ public class ProductImage
 
         if (imageBase64 == "")
         {
-            WidthAndHeight = (0, 0);
+            Width = 0;
+            Height = 0;
             return;
         }
         
         var image = Image.Load(new MemoryStream(Convert.FromBase64String(imageBase64)));
 
-        WidthAndHeight = (image.Width, image.Height);
+        Width = image.Width;
+        Height = image.Height;
     }
 
     private void CalculateRatio()
     {
         var startTime = DateTime.Now;
-        if (WidthAndHeight.Item1 == 0 || WidthAndHeight.Item2 == 0)
+        if (Width == 0 || Height == 0)
         {
-            AspectRatio = (0, 0);
+            AspectRatioX = 0;
+            AspectRatioY = 0;
             return;
         }
 
         int larger, smaller;
         
-        if (WidthAndHeight.Item1 > WidthAndHeight.Item2)
+        if (Width > Height)
         {
-            larger = WidthAndHeight.Item1;
-            smaller = WidthAndHeight.Item2;
+            larger = Width;
+            smaller = Height;
         }
         else
         {
-            larger = WidthAndHeight.Item2;
-            smaller = WidthAndHeight.Item1;
+            larger = Height;
+            smaller = Width;
         }
         
         //get greatest common divisor using euclidean algorithm
@@ -127,7 +132,8 @@ public class ProductImage
 
         
         Console.WriteLine((DateTime.Now - startTime).Milliseconds);
-        AspectRatio = (WidthAndHeight.Item1 / (int)last, WidthAndHeight.Item2 / (int)last);
+        AspectRatioX = Width / (int)last;
+        AspectRatioY = Height / (int)last;
     }
     
 

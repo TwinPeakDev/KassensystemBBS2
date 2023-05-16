@@ -1,7 +1,9 @@
 ﻿version: '2.1'
 
-# Address: http://172.29.111.95:8080
-
+networks:
+  portainer_internal:
+    external: true
+  
 volumes:
   wwwroot:
   keys:
@@ -11,25 +13,22 @@ volumes:
 
 services:
   develop:
-    build: .
+    image: saile2204/kassensystem-bbs2-wob:latest-develop
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
       DB_HOST: "db"
       DB_Database: "DevDB"
       DB_User: "root"
-      DB_Password: "testPW"
+      DB_Password: "mauFJcuf5dhRMQrjj"
+      DB_PORT: "3306"
       LDAP_ORGANISATION: "nuv.systems"
       LDAP_DOMAIN: "nuv.systems"
       LDAP_BASE_DN: "dc=nuv,dc=systems"
       LDAP_ADMIN_PASSWORD: "eT*671uvbJ#toK$I"
-    ports:
-      - "8080:80"
-      - "8081:443"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - portainer_internal
     volumes:
       - wwwroot:/app/wwwroot
       - keys:/root/.aspnet
@@ -47,13 +46,11 @@ services:
       - SYS_NICE
     environment:
       MYSQL_DATABASE: 'db'
-      MYSQL_ROOT_PASSWORD: 'testPW'
+      MYSQL_ROOT_PASSWORD: 'mauFJcuf5dhRMQrjj'
     volumes:
       - db:/var/lib/mysql
     restart: unless-stopped
-    ports:
-      - "8082:3306"
-  
+    
   ldap:
     image: osixia/openldap:1.5.0
     environment:
@@ -61,7 +58,7 @@ services:
       LDAP_ORGANISATION: "nuv.systems"
       LDAP_DOMAIN: "nuv.systems"
       LDAP_BASE_DN: "dc=nuv,dc=systems"
-      LDAP_ADMIN_PASSWORD: "eT*671uvbJ#toK$I"
+      LDAP_ADMIN_PASSWORD: "mauFJcuf5dhRMQrjj"
       LDAP_CONFIG_PASSWORD: "config"
       LDAP_READONLY_USER: "false"
       #LDAP_READONLY_USER_USERNAME: "readonly"
@@ -79,9 +76,7 @@ services:
     stdin_open: true
     volumes:
       - ldap:/var/lib/ldap
-      - ldap_slapd:/etc/ldap/slapd.d
-    ports:
-      - "8083:389"
+      - ldap_slapd:/etc/ldap/slapd.d 
   phpldapadmin:
     image: osixia/phpldapadmin:latest
     environment:
@@ -89,7 +84,7 @@ services:
       PHPLDAPADMIN_HTTPS: "false"
     links:
       - ldap
+    networks:
+      - portainer_internal
     depends_on:
       - ldap
-    ports:
-      - "8084:80"

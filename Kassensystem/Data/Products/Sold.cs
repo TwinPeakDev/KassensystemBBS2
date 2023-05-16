@@ -16,27 +16,16 @@ Olivia Streun: https://github.com/nnuuvv
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/.
 */
-using System.ComponentModel.DataAnnotations;
+
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Kassensystem.Data;
+namespace Kassensystem.Data.Products;
 
-public class Product
+public class Sold 
 {
-    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public string Name { get; set; } 
-    public double PriceEuro { get; set; }
-    public ProductImage? Image { get; set; }
-    public List<Sold>? SellEntries { get; set; }
-    public User? User { get; set; }
-
-    //returns true if all non nullable values have been set
-    public bool ReadyToSave()
-    {
-        return Name != null;
-    }
-    
-    
+    public int Id { get; set;}
+    public DateTime Created { get; set; } = DateTime.Now;
+    public Product Item { get; set; } 
+    public User SoldBy { get; set; }
 }

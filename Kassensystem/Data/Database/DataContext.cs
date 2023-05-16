@@ -17,6 +17,7 @@ Olivia Streun: https://github.com/nnuuvv
     along with this program.  If not, see https://www.gnu.org/licenses/.
 */
 
+using Kassensystem.Data.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 

@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Kassensystem.Data.Database;
+using Kassensystem.Data.Products;
 
 namespace Kassensystem.Hubs;
 

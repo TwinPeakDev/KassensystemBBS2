@@ -18,7 +18,7 @@ Olivia Streun: https://github.com/nnuuvv
 */
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Kassensystem.Data;
+using Kassensystem.Data.Products;
 
 public class User
 {

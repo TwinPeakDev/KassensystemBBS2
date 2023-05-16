@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		stackRequest.json = stackRequest.json
 		Dockerfile = Dockerfile
 		Kassensystem\Properties\launchSettings.json = Kassensystem\Properties\launchSettings.json
+		docker-compose-stack.yml = docker-compose-stack.yml
+		clearDocker.sh = clearDocker.sh
 	EndProjectSection
 EndProject
 Global

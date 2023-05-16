@@ -17,6 +17,7 @@ Olivia Streun: https://github.com/nnuuvv
     along with this program.  If not, see https://www.gnu.org/licenses/.
 */
 
+using System.Text;
 using Kassensystem.Data;
 using Kassensystem.Data.Database;
 using Kassensystem.Hubs;
@@ -50,16 +51,104 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-var connectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? "";
-bool inMemory = connectionString.Equals("");
 
-if(inMemory)
+#region Initialize DB
+var isDB = true;
+var connectionStringBuilder = new StringBuilder();
+
+string host = Environment.GetEnvironmentVariable("DB_HOST");
+if (string.IsNullOrEmpty(host)) host = "none";
+if (!host.Equals("none"))
+{
+    connectionStringBuilder.Append($"server={host};");
+}
+else
+{
+    isDB = false;
+}
+
+
+if (isDB)
+{
+    string database = Environment.GetEnvironmentVariable("DB_Database");
+    if (string.IsNullOrEmpty(host)) database = "none";
+    if (!database.Equals("none"))
+    {
+        connectionStringBuilder.Append($"database={database};");
+    }
+    else
+    {
+        isDB = false;
+    }
+}
+
+if (isDB)
+{
+    string user = Environment.GetEnvironmentVariable("DB_User");
+    if (string.IsNullOrEmpty(host)) user = "none";
+    if (!user.Equals("none"))
+    {
+        connectionStringBuilder.Append($"user={user};");
+    }
+    else
+    {
+        isDB = false;
+    }
+}
+
+if (isDB)
+{
+    string password = Environment.GetEnvironmentVariable("DB_Password");
+    if (string.IsNullOrEmpty(host)) password = "none";
+    if (!password.Equals("none"))
+    {
+        connectionStringBuilder.Append($"password={password};");
+    }
+    else
+    {
+        isDB = false;
+    }
+}
+
+if (isDB)
+{
+    string portRaw = Environment.GetEnvironmentVariable("DB_PORT");
+    if (string.IsNullOrEmpty(host)) portRaw = "3306";
+    connectionStringBuilder.Append($"port={portRaw}");
+}
+
+/*connectionStringBuilder.Clear();
+connectionStringBuilder.Append($"Server=localhost;");
+connectionStringBuilder.Append($"User=root;");
+connectionStringBuilder.Append($"Pwd=testPW;");
+connectionStringBuilder.Append($"Database=db;");
+connectionStringBuilder.Append($"Port=8082");*/
+if(!isDB)
     builder.Services.AddDbContextFactory<DataContext>(options => options.UseInMemoryDatabase("TestDatabase"));
 else
 {
-    
-    builder.Services.AddDbContextFactory<DataContext>(options => options.UseMySql(connectionString, ServerVersion.Create(new Version(8,0), ServerType.MySql)));
+    try
+    {
+        var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
+        builder.Services.AddDbContextFactory<DataContext>(
+            options => options
+                .UseMySql(connectionStringBuilder.ToString(), serverVersion,
+                    options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)
+                )
+                .LogTo(Console.WriteLine)
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors());
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+        throw;
+    }
 }
+#endregion
 
 
 var app = builder.Build();
@@ -90,7 +179,7 @@ var webHostEnvironment = app.Services.GetRequiredService<IWebHostEnvironment>();
 Environment.SetEnvironmentVariable("WWWROOT",webHostEnvironment.WebRootPath);
 
 var dbFactory = app.Services.GetRequiredService<IDbContextFactory<DataContext>>();
-if (inMemory)
+if (!isDB)
 {
     
     /*var db = await dbFactory.CreateDbContextAsync();
