@@ -34,7 +34,7 @@ services:
       - wwwroot:/app/wwwroot
       - keys:/root/.aspnet
     restart: unless-stopped
-    links:
+    links:          
       - db
       - ldap
     depends_on:

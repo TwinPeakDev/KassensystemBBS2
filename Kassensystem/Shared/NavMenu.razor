@@ -17,7 +17,7 @@ Olivia Streun: https://github.com/nnuuvv
     along with this program.  If not, see https://www.gnu.org/licenses/.
 *@
 
-<RadzenSidebar @bind-Expanded="@sidebar2Expanded">
+<RadzenSidebar @bind-Expanded="@SidebarExpanded">
     <RadzenPanelMenu>
         <RadzenPanelMenuItem Click="PanelClick" Text="Home" Path="/" Icon="home" />
         <RadzenPanelMenuItem Click="PanelClick" Text="Produkte" Path="products" Icon="list" />
@@ -27,12 +27,17 @@ Olivia Streun: https://github.com/nnuuvv
 
 @code
 {
-    public bool sidebar2Expanded = true;
+    public bool SidebarExpanded { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //TODO: Fix that side Menu opens on Startup. :( `´
+    }
 
     public async Task PanelClick()
     {
-        if(sidebar2Expanded) await Task.Delay(150);
-        sidebar2Expanded = !sidebar2Expanded;
+        if(SidebarExpanded) await Task.Delay(150);
+        SidebarExpanded = !SidebarExpanded;
     }
     
 }

@@ -1,12 +1,16 @@
-﻿# start the container stack
-# (assumes the caller has permission to do this)
+﻿echo '####################################################'
+echo 'Starting Compose Containers ...'
+echo '####################################################'
 docker-compose up -d
 
 
-# wait for the service to be ready
+echo '####################################################'
+echo 'Waiting for Webserver to Start ...'
+echo '####################################################'
 while ! curl --fail --silent --head http://172.29.111.95:8080; do
   sleep 1
 done
 
-# open the browser window
-start "" http://172.29.111.95:8080
+echo '####################################################'
+echo 'Open your Browser at http://172.29.111.95:8080.'
+echo '####################################################'
