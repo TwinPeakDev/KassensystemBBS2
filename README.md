@@ -1,4 +1,4 @@
-# KassensystemBBS2
+# KassensystemBBS3
 
 ## Table of Contents
 
