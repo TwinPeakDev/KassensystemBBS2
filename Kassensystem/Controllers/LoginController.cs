@@ -1,5 +1,6 @@
-﻿/*
-Copyright (C) 2023  
+
+/*
+Copyright (C) 2023
 Elias Stepanik: https://github.com/eliasstepanik
 Olivia Streun: https://github.com/nnuuvv
 
@@ -17,7 +18,6 @@ Olivia Streun: https://github.com/nnuuvv
     along with this program.  If not, see https://www.gnu.org/licenses/.
 */
 
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
